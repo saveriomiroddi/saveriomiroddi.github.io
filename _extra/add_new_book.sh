@@ -75,7 +75,7 @@ function create_commit {
 }
 
 function create_pr_and_merge {
-  geet pr create --automated-mode --no-open-pr --labels bookshelf
+  geet pr create --automated-mode --no-open-pr --reviewers - --labels bookshelf
   geet pr merge
 }
 
