@@ -70,11 +70,12 @@ function start_server_and_open_blog {
 function create_commit {
   local book_name_humanized=${v_book_name//_/ }
   book_name_humanized=${book_name_humanized^}
-  git ca -m "Add to bookshelf: $book_name_humanized"
+  git add -A :/
+  git commit -v -m "Add to bookshelf: $book_name_humanized"
 }
 
 function create_pr_and_merge {
-  geet pr create -an -l bookshelf
+  geet pr create --automated-mode --no-open-pr --labels bookshelf
   geet pr merge
 }
 
