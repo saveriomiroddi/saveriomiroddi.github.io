@@ -79,13 +79,13 @@ function create_pr_and_merge {
   geet pr merge
 }
 
-decode_cmdline_options "$@"
-check_preconditions
-set_book_name
-clear_existing_books
-add_image
-add_new_book_description
-start_server_and_open_blog
+# decode_cmdline_options "$@"
+# check_preconditions
+# set_book_name
+# clear_existing_books
+# add_image
+# add_new_book_description
+# start_server_and_open_blog
 create_branch
 create_commit
 create_pr_and_merge
