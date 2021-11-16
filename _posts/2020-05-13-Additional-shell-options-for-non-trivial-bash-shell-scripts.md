@@ -2,6 +2,7 @@
 layout: post
 title: Additional shell options for non-trivial (Bash) shell scripts
 tags: [debugging,linux,shell_scripting,sysadmin]
+last_modified_at: 2021-11-16 15:31:00
 ---
 
 For a variety of reasons, writing (Bash) shell scripts requires lots of care. When writing non-trivial shell scripts, it's crucial to take precautions; shell options are part of this practice.
@@ -71,7 +72,7 @@ Error coming; debug routine will kick in!
 
 Ouch 😳. Why the error is not caught?
 
-The problem is: by default, in the context of functions, trapping is not inherited.
+The problem is: by default, in the context of functions, `ERR` trapping is not inherited.
 
 So now, we know we need to employ another shell option, `errtrace` (`-E`):
 
