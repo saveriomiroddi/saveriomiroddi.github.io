@@ -2,6 +2,7 @@
 layout: post
 title: Beginning x64 Assembly Programming Errata
 tags: [assembler,performance]
+last_modified_at: 2020-11-20 13:27:00
 ---
 
 I've recently completed the book [Beginning x64 Assembly Programming Errata](https://www.oreilly.com/library/view/beginning-x64-assembly/9781484250761).
@@ -17,6 +18,7 @@ Content:
 - [Page 206: Moving Strings](/Beginning-x64-Assembly-Programming-Errata#page-206-moving-strings)
 - [Page 217: Using cpuid](/Beginning-x64-Assembly-Programming-Errata#page-217-using-cpuid)
 - [Page 328: Matrix Print: printm4x4](/Beginning-x64-Assembly-Programming-Errata#page-328-matrix-print-printm4x4)
+- [Page 384: Using More Than Four Arguments](/Beginning-x64-Assembly-Programming-Errata#page-384-using-more-than-four-arguments)
 - [Conclusion](/Beginning-x64-Assembly-Programming-Errata#conclusion)
 
 ## Introduction
@@ -161,6 +163,36 @@ In the following reference (emphasis mine):
 > To align the stack on a 16-byte boundary, we cannot use the trick with the and instruction from _Chapter 16_.
 
 the trick is actually in Chapter 15 (page 125).
+
+## Page 384: Using More Than Four Arguments
+
+The following listing shows how to perform a Windows call with more than four arguments:
+
+```asm
+  sub   rsp, 8
+  mov   rcx, fmt
+  mov   rdx, first
+  mov   r8, second
+  mov   r9, third
+  push  tenth
+  push  ninth
+  push  eighth
+  push  seventh
+  push  sixth
+  push  fifth
+  push  fourth
+  sub   rsp, 32       ;  shadow  space
+  call  printf
+  add   rsp, 32 + 8
+```
+
+However, the stack point reset following the call is not accounting for the (7) pushes; the correct reset is:
+
+```asm
+  add   rsp, 32 + 56 + 8    ; 56 = 7 * 8
+```
+
+In the alternative call structure, on pages 385/386, the stack pointer is correctly reset, by adding the value (32 + 56 + 8).
 
 ## Conclusion
 
