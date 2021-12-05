@@ -33,7 +33,7 @@ Second, the authors don't seem to take the subject seriously, either:
 
 It's worrying that two errors are conceptual (the explanations given are fundamentally wrong); after finishing the book I'm now questioning the quality of what I've learned.
 
-Errors are a fact of life, so there's nothing wrong, but since reader will consume time and hair on them (I did), the matter should be addressed; if a production company doesn't want to spend resources, at a minimum, they could setup a web page where readers can submit their findings (Mannings adopts this approach, for example).
+Errors are a fact of life, and there's nothing wrong with them, but since readers consume time and hair because of them (I did), it's important for the topic to be recognized, and addressed in some way. At a minimum, a publisher can setup a simple web page with a table, where readers can submit their findings (I've seen this approach a few times).
 
 But now, to the errors!
 
