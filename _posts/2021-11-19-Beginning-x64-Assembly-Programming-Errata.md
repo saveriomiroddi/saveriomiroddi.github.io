@@ -2,7 +2,7 @@
 layout: post
 title: Beginning x64 Assembly Programming Errata
 tags: [assembler,performance]
-last_modified_at: 2020-11-20 13:27:00
+last_modified_at: 2020-12-06 00:02:00
 ---
 
 I've recently completed the book [Beginning x64 Assembly Programming Errata](https://www.oreilly.com/library/view/beginning-x64-assembly/9781484250761).
@@ -33,7 +33,7 @@ Second, the authors don't seem to take the subject seriously, either:
 
 It's worrying that two errors are conceptual (the explanations given are fundamentally wrong); after finishing the book I'm now questioning the quality of what I've learned.
 
-Errors are a fact of life, so there's nothing wrong, but since reader will consume time and hair on them (I did), the matter should be addressed; if a production company doesn't want to spend resources, at a minimum, they could setup a web page were readers can submit their findings (Mannings adopts this approach, for example).
+Errors are a fact of life, so there's nothing wrong, but since reader will consume time and hair on them (I did), the matter should be addressed; if a production company doesn't want to spend resources, at a minimum, they could setup a web page where readers can submit their findings (Mannings adopts this approach, for example).
 
 But now, to the errors!
 
