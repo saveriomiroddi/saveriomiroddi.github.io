@@ -1,6 +1,13 @@
 {% if site.disqus %}
 <div class="comments">
-	<div id="disqus_thread"></div>
+  <style type="text/css" scoped>
+    /* Disable horrifying ads (see https://stackoverflow.com/q/49131980/210029) */
+    iframe[sandbox]:not([sandbox=""]) {
+      display: none !important;
+    }
+  </style>
+
+  <div id="disqus_thread"></div>
 	<script type="text/javascript">
 
 	    var disqus_shortname = '{{ site.disqus }}';
