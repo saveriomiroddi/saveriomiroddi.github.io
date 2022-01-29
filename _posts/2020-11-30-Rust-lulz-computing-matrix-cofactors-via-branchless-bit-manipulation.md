@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Rust Lulz&#58; Computing matrix cofactors via branchless bit manipulation
-tags: [data_types,lulz,performance,rust]
+tags: [data_types,performance,rust]
 ---
 
 This is the beginning of my "Rust Lulz" articles; the subject is simply things that, for one reason or another, I've found amusing while learning/applying Rust.

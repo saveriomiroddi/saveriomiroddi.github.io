@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Rust Lulz&#58; Implementing (floating point) approximate equality via traits
-tags: [data_types,lulz,rust]
+tags: [data_types,rust]
 ---
 
 A common concept to deal with when working with floating point numbers, is approximate equality. While the implementation itself is simple (a specialized function will do), Rust gives a more elegant option.
