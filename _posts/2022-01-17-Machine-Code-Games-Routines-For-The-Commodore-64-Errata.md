@@ -2,7 +2,7 @@
 layout: post
 title: "\"Machine Code Games Routines For The Commodore 64\" Errata (WIP)"
 tags: [assembler,performance,retrocomputing]
-last_modified_at: 2022-01-29 17:08:00
+last_modified_at: 2022-02-01 23:15:00
 ---
 
 I'm reading the book [Machine Code Games Routines For The Commodore 64](https://archive.org/details/Machine_Code_Games_Routines_for_the_Commodore_64); since there is no errata, I'm publishing my findings.
@@ -16,6 +16,7 @@ Content:
 - [Page 012: JSR/RTS operation](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-012-jsrrts-operation)
 - [Page 047: Spiral fill: LDR and comment](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-047-spiral-fill-ldr-and-comment)
 - [Page 071: Small memory fill: Address off by one](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-071-small-memory-fill-address-off-by-one)
+- [Page 090: Fundamental Bomb Update Start location](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-090-fundamental-bomb-update-start-location)
 
 ## Page 012: JSR/RTS operation
 
@@ -122,3 +123,18 @@ loop: sta ADDR - 1, x // the fact that ldx affects the zero flag, and fall throu
       bne loop
 exit: rts
 ```
+
+## Page 090: Fundamental Bomb Update Start location
+
+At page 90, the start location is `$08bf`:
+
+```asm
+; 191 + 256 * 8 = 2239 = $08bf
+;
+      lda #191
+      sta 251
+      lda #8
+      sta 252
+```
+
+The correct location is `$07bf` ($0400 + 40 * (25 - 1) - 1). The `$08bf`location is also off screen (whose memory interval is `$0400`-`$07e7`).
