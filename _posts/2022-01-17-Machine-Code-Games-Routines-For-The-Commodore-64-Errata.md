@@ -17,6 +17,7 @@ Content:
 - [Page 047: Spiral fill: LDR and comment](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-047-spiral-fill-ldr-and-comment)
 - [Page 071: Small memory fill: Address off by one](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-071-small-memory-fill-address-off-by-one)
 - [Page 080: Fundamental Bomb Update Start location](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-080-fundamental-bomb-update-start-location)
+- [Page 081: Hail Of Barbs BASIC data read cycle](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-081-hail-of-barbs-basic-data-read-cycle)
 
 ## Page 012: JSR/RTS operation
 
@@ -138,3 +139,21 @@ The listing start location is defined as `$08bf`:
 ```
 
 The correct location is instead `$07bf` ($0400 + 40 * (25 - 1) - 1) - the end of the beforelast line. The `$08bf`location is also off screen (whose memory interval is `$0400`-`$07e7`).
+
+## Page 081: Hail Of Barbs BASIC data read cycle
+
+The data read cycle on the listing runs infinitely:
+
+```bas
+60 P = 820
+70 READ D : POKE P, D : P = P + 1 : GOTO 70
+```
+
+A for loop is a correct and convenient approach:
+
+```bas
+# REM THERE ARE 44 BYTES
+60 FOR L = 820 TO 863 : READ D : POKE L, D : NEXT
+```
+
+Note that I've only briefly run the code, so I can't guarantee for the correctness of the ASM routine (at a first look, it may be broken as well).
