@@ -2,7 +2,7 @@
 layout: post
 title: "\"Machine Code Games Routines For The Commodore 64\" Errata (WIP)"
 tags: [assembler,performance,retrocomputing]
-last_modified_at: 2022-02-01 23:15:00
+last_modified_at: 2022-02-03 00:14:00
 ---
 
 I'm reading the book [Machine Code Games Routines For The Commodore 64](https://archive.org/details/Machine_Code_Games_Routines_for_the_Commodore_64); since there is no errata, I'm publishing my findings.
@@ -18,6 +18,7 @@ Content:
 - [Page 071: Small memory fill: Address off by one](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-071-small-memory-fill-address-off-by-one)
 - [Page 080: Fundamental Bomb Update: Start location](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-080-fundamental-bomb-update-start-location)
 - [Page 081: Hail Of Barbs BASIC: Data read cycle](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-081-hail-of-barbs-basic-data-read-cycle)
+- [Page 085: 256 Bytes Continous Scroll: Wrong addressing mode](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-085-256-bytes-continous-scroll-wrong-addressing-mode)
 
 ## Page 012: JSR/RTS operation
 
@@ -157,3 +158,21 @@ A for loop is a correct and convenient approach:
 ```
 
 Note that I've only briefly run the code, so I can't guarantee for the correctness of the ASM routine (at a first look, it may be broken as well).
+
+## Page 085: 256 Bytes Continous Scroll: Wrong addressing mode
+
+The routine uses the X register for computing the current character displacement:
+
+```asm
+      lda ADDR, x
+```
+
+This addressing mode is the so-called "Indexed indirect" (generally represented as `lda (ADDR, x)`), which first adds the X value to the pointer, then loads the value from the memory, which is not correct - for example, if $0400 (endian-normalized) is stored at ADDR, and X = 2, the CPU will access the value at $0402, which will return an undefined value.
+
+The intended addressing mode is the "Indirect indexed":
+
+```asm
+      lda (ADDR), y
+```
+
+This addressing mode first loads the value from memory, then adds the index, and finally accesses the resulting memory location; in this case, it will load $0400 from ADDR, then add 2 (Y), and finally access the resulting address ($0402).
