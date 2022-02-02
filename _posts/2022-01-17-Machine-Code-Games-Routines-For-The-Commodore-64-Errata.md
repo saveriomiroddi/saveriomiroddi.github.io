@@ -16,8 +16,8 @@ Content:
 - [Page 012: JSR/RTS operation](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-012-jsrrts-operation)
 - [Page 047: Spiral fill: LDR and comment](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-047-spiral-fill-ldr-and-comment)
 - [Page 071: Small memory fill: Address off by one](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-071-small-memory-fill-address-off-by-one)
-- [Page 080: Fundamental Bomb Update Start location](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-080-fundamental-bomb-update-start-location)
-- [Page 081: Hail Of Barbs BASIC data read cycle](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-081-hail-of-barbs-basic-data-read-cycle)
+- [Page 080: Fundamental Bomb Update: Start location](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-080-fundamental-bomb-update-start-location)
+- [Page 081: Hail Of Barbs BASIC: Data read cycle](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-081-hail-of-barbs-basic-data-read-cycle)
 
 ## Page 012: JSR/RTS operation
 
@@ -125,7 +125,7 @@ loop: sta ADDR - 1, x // the fact that ldx affects the zero flag, and fall throu
 exit: rts
 ```
 
-## Page 080: Fundamental Bomb Update Start location
+## Page 080: Fundamental Bomb Update: Start location
 
 The listing start location is defined as `$08bf`:
 
@@ -140,7 +140,7 @@ The listing start location is defined as `$08bf`:
 
 The correct location is instead `$07bf` ($0400 + 40 * (25 - 1) - 1) - the end of the beforelast line. The `$08bf`location is also off screen (whose memory interval is `$0400`-`$07e7`).
 
-## Page 081: Hail Of Barbs BASIC data read cycle
+## Page 081: Hail Of Barbs BASIC: Data read cycle
 
 The data read cycle on the listing runs infinitely:
 
