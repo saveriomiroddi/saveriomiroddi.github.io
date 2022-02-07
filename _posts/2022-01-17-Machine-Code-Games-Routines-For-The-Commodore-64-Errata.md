@@ -2,7 +2,7 @@
 layout: post
 title: "\"Machine Code Games Routines For The Commodore 64\" Errata (WIP)"
 tags: [assembler,performance,retrocomputing]
-last_modified_at: 2022-02-03 00:14:00
+last_modified_at: 2022-02-07 23:55:00
 ---
 
 I'm reading the book [Machine Code Games Routines For The Commodore 64](https://archive.org/details/Machine_Code_Games_Routines_for_the_Commodore_64); since there is no errata, I'm publishing my findings.
@@ -19,6 +19,7 @@ Content:
 - [Page 080: Fundamental Bomb Update: Start location](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-080-fundamental-bomb-update-start-location)
 - [Page 081: Hail Of Barbs BASIC: Data read cycle](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-081-hail-of-barbs-basic-data-read-cycle)
 - [Page 085: 256 Bytes Continous Scroll: Wrong addressing mode](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-085-256-bytes-continous-scroll-wrong-addressing-mode)
+- [Page 090: Joystick handling: Misplaced comment](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-090-joystick-handling-misplaced-comment)
 
 ## Page 012: JSR/RTS operation
 
@@ -176,3 +177,21 @@ The intended addressing mode is the "Indirect indexed":
 ```
 
 This addressing mode first loads the value from memory, then adds the index, and finally accesses the resulting memory location; in this case, it will load $0400 from ADDR, then add 2 (Y), and finally access the resulting address ($0402).
+
+## Page 090: Joystick handling: Misplaced comment
+
+The comment:
+
+```asm
+      sta 53248
+      lda TABLE+1, x    ; Update X
+      clc
+```
+
+is one line below where it should be:
+
+```asm
+      sta 53248         ; Update X
+      lda TABLE+1, x
+      clc
+```
