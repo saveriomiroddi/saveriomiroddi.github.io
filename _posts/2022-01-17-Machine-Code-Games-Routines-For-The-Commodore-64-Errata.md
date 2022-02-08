@@ -2,7 +2,7 @@
 layout: post
 title: "\"Machine Code Games Routines For The Commodore 64\" Errata (WIP)"
 tags: [assembler,performance,retrocomputing]
-last_modified_at: 2022-02-07 23:55:00
+last_modified_at: 2022-02-09 00:26:00
 ---
 
 I'm reading the book [Machine Code Games Routines For The Commodore 64](https://archive.org/details/Machine_Code_Games_Routines_for_the_Commodore_64); since there is no errata, I'm publishing my findings.
@@ -20,6 +20,8 @@ Content:
 - [Page 081: Hail Of Barbs BASIC: Data read cycle](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-081-hail-of-barbs-basic-data-read-cycle)
 - [Page 085: 256 Bytes Continous Scroll: Wrong addressing mode](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-085-256-bytes-continous-scroll-wrong-addressing-mode)
 - [Page 090: Joystick handling: Misplaced comment](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-090-joystick-handling-misplaced-comment)
+- [Page 094: Attribute Flasher: Off-by-1 error](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-094-attribute-flasher-off-by-1-error)
+- [Page 095: Alternate Sprite System: Encoded sprite missing entry](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-094-alternate-sprite-system-encoded-sprite-missing-entry)
 
 ## Page 012: JSR/RTS operation
 
@@ -194,4 +196,61 @@ is one line below where it should be:
       sta 53248         ; Update X
       lda TABLE+1, x
       clc
+```
+
+## Page 094: Attribute Flasher: Off-by-1 error
+
+The `TABLE` base reference:
+
+```asm
+      ldx #25
+      // ...
+      lda TABLE, x
+      cmp #255
+```
+
+must be decreased by one byte, because the `x` value is in the close (both ends included) interval [1, 25]:
+
+```asm
+      ldx #25
+      // ...
+      lda TABLE - 1, x
+      cmp #255
+```
+
+without this correction, the first read is at (`TABLE` + 1), and the last one at (`TABLE` + (screen lines count) + 1).
+
+## Page 095: Alternate Sprite System: Encoded sprite missing entry
+
+The sprite is encoded as:
+
+```
+      86, 39
+      78, 1,
+      37, 1,
+      77, 38
+      34, 1,
+      34, 1,
+      0,  -
+```
+
+Which represents a sprite like this (9 chars tot):
+
+```
+ X
+/%\
+"""
+```
+
+However, the table is missing the last symbol (another quote, #34):
+
+```
+      86, 39
+      78, 1
+      37, 1
+      77, 38
+      34, 1
+      34, 1
+      34, 1
+      0,  -
 ```
