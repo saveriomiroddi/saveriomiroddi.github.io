@@ -23,6 +23,7 @@ Content:
 - [Page 094: Attribute Flasher: Off-by-1 error](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-094-attribute-flasher-off-by-1-error)
 - [Page 095: Alternate Sprite System: Encoded sprite missing entry](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-094-alternate-sprite-system-encoded-sprite-missing-entry)
 - [Page 111: Invalid tune entry](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-111-invalid-tune-entry)
+- [Pages 114/115: Mixed up Window Projection concepts](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#pages-114115-mixed-up-window-projection-concepts)
 
 ## Page 012: JSR/RTS operation
 
@@ -265,3 +266,9 @@ The beforelast entry of the tune:
 ```
 
 is not valid, and it's not a part of the tune, so it should be removed.
+
+## Pages 114/115: Mixed up Window Projection concepts
+
+In the diagram in the page 114, the variable `C` and `R` have been mixed - their placement should be swapped. For example, in the inner loop, the test should be `C = WIDTH ?` instead of `R = WIDTH ?`, and in the outer loop, the test should be `R = HEIGHT ?` instead of `C = HEIGHT ?`.
+
+In the listing in the page 115, the `Copy window` comment should be `Copy row`.
