@@ -22,6 +22,7 @@ Content:
 - [Page 090: Joystick handling: Misplaced comment](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-090-joystick-handling-misplaced-comment)
 - [Page 094: Attribute Flasher: Off-by-1 error](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-094-attribute-flasher-off-by-1-error)
 - [Page 095: Alternate Sprite System: Encoded sprite missing entry](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-094-alternate-sprite-system-encoded-sprite-missing-entry)
+- [Page 111: Invalid tune entry](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-111-invalid-tune-entry)
 
 ## Page 012: JSR/RTS operation
 
@@ -254,3 +255,13 @@ However, the table is missing the last symbol (another quote, #34):
       34, 1
       0,  -
 ```
+
+## Page 111: Invalid tune entry
+
+The beforelast entry of the tune:
+
+```
+0  0  255
+```
+
+is not valid, and it's not a part of the tune, so it should be removed.
