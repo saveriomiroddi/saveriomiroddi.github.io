@@ -2,7 +2,7 @@
 layout: post
 title: "\"Machine Code Games Routines For The Commodore 64\" Errata (WIP)"
 tags: [assembler,performance,retrocomputing]
-last_modified_at: 2022-02-09 00:26:00
+last_modified_at: 2022-02-26 22:19:00
 ---
 
 I'm reading the book [Machine Code Games Routines For The Commodore 64](https://archive.org/details/Machine_Code_Games_Routines_for_the_Commodore_64); since there is no errata, I'm publishing my findings.
@@ -22,6 +22,9 @@ Content:
 - [Page 090: Joystick handling: Misplaced comment](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-090-joystick-handling-misplaced-comment)
 - [Page 094: Attribute Flasher: Off-by-1 error](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-094-attribute-flasher-off-by-1-error)
 - [Page 095: Alternate Sprite System: Encoded sprite missing entry](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-094-alternate-sprite-system-encoded-sprite-missing-entry)
+- [Page 111: Invalid tune entry](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-111-invalid-tune-entry)
+- [Pages 114/115: Mixed up Window Projection concepts](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#pages-114115-mixed-up-window-projection-concepts)
+- [Page 116: Projecting a Landscape: Many bugs](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#pages-114115-mixed-up-window-projection-concepts)
 
 ## Page 012: JSR/RTS operation
 
@@ -253,4 +256,45 @@ However, the table is missing the last symbol (another quote, #34):
       34, 1
       34, 1
       0,  -
+```
+
+## Page 111: Invalid tune entry
+
+The beforelast entry of the tune:
+
+```
+0  0  255
+```
+
+is not valid, and it's not a part of the tune, so it should be removed.
+
+## Pages 114/115: Mixed up Window Projection concepts
+
+In the diagram in the page 114, the variable `C` and `R` have been mixed - their placement should be swapped. For example, in the inner loop, the test should be `C = WIDTH ?` instead of `R = WIDTH ?`, and in the outer loop, the test should be `R = HEIGHT ?` instead of `C = HEIGHT ?`.
+
+In the listing in the page 115, the `Copy window` comment should be `Copy row`.
+
+## Page 116: Projecting a Landscape: Many bugs
+
+This routine has a lot of bugs:
+
+- before the `SBC` instruction, `SEC` should be issued;
+- the `LDY #30` should be `LDY #31`, as the amount of elements drawn must include the one including the spaceship (in total, 2 * radius + 1)
+- the `LDA (TABLE, X)` uses the wrong addressing mode, since the correct one is `LDA (TABLE), Y`, in the whole routine, the `X` instructions must be replaced with `Y` counterpart, and viceversa
+- the comment "Plot ship at coordinates (Y, A)" is wrong; it should be "Plot the element at coordinate Y, with value A"
+
+The corrected version is:
+
+```asm
+        TYA
+        SEC
+        SBC #15
+        TAY
+        LDX #31
+LOOP:   LDA (TABLE), Y
+        JSR PLOT
+        INY
+        DEX
+        BNE LOOP
+        RTS
 ```
