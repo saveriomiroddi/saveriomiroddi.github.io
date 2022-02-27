@@ -1,15 +1,13 @@
 ---
 layout: post
-title: "\"Machine Code Games Routines For The Commodore 64\" Errata (WIP)"
+title: "\"Machine Code Games Routines For The Commodore 64\" Errata"
 tags: [assembler,performance,retrocomputing]
-last_modified_at: 2022-02-26 22:19:00
+last_modified_at: 2022-02-27 20:26:00
 ---
 
 I'm reading the book [Machine Code Games Routines For The Commodore 64](https://archive.org/details/Machine_Code_Games_Routines_for_the_Commodore_64); since there is no errata, I'm publishing my findings.
 
 The pages referred are the printed ones.
-
-This article is a WIP; I'll update while I read (assuming I'll find other errata).
 
 Content:
 
@@ -17,14 +15,14 @@ Content:
 - [Page 047: Spiral fill: LDR and comment](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-047-spiral-fill-ldr-and-comment)
 - [Page 071: Small memory fill: Address off by one](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-071-small-memory-fill-address-off-by-one)
 - [Page 080: Fundamental Bomb Update: Start location](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-080-fundamental-bomb-update-start-location)
-- [Page 081: Hail Of Barbs BASIC: Data read cycle](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-081-hail-of-barbs-basic-data-read-cycle)
+- [Page 081: Hail Of Barbs BASIC: Data read cycle and entry point](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-081-hail-of-barbs-basic-data-read-cycle-and-entry-point)
 - [Page 085: 256 Bytes Continous Scroll: Wrong addressing mode](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-085-256-bytes-continous-scroll-wrong-addressing-mode)
 - [Page 090: Joystick handling: Misplaced comment](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-090-joystick-handling-misplaced-comment)
 - [Page 094: Attribute Flasher: Off-by-1 error](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-094-attribute-flasher-off-by-1-error)
-- [Page 095: Alternate Sprite System: Encoded sprite missing entry](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-094-alternate-sprite-system-encoded-sprite-missing-entry)
+- [Page 095: Alternate Sprite System: Encoded sprite missing entry](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-095-alternate-sprite-system-encoded-sprite-missing-entry)
 - [Page 111: Invalid tune entry](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-111-invalid-tune-entry)
 - [Pages 114/115: Mixed up Window Projection concepts](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#pages-114115-mixed-up-window-projection-concepts)
-- [Page 116: Projecting a Landscape: Many bugs](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#pages-114115-mixed-up-window-projection-concepts)
+- [Page 116: Projecting a Landscape: Many bugs](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-116-projecting-a-landscape-many-bugs)
 
 ## Page 012: JSR/RTS operation
 
@@ -147,7 +145,7 @@ The listing start location is defined as `$08bf`:
 
 The correct location is instead `$07bf` ($0400 + 40 * (25 - 1) - 1) - the end of the beforelast line. The `$08bf`location is also off screen (whose memory interval is `$0400`-`$07e7`).
 
-## Page 081: Hail Of Barbs BASIC: Data read cycle
+## Page 081: Hail Of Barbs BASIC: Data read cycle and entry point
 
 The data read cycle on the listing runs infinitely:
 
@@ -163,7 +161,11 @@ A for loop is a correct and convenient approach:
 60 FOR L = 820 TO 863 : READ D : POKE L, D : NEXT
 ```
 
-Note that I've only briefly run the code, so I can't guarantee for the correctness of the ASM routine (at a first look, it may be broken as well).
+Additionally, the entry point (invoked by SYS) is 820, not 830:
+
+```bas
+1010 POKE 1024 + INT(40 * RND(1)), 36 : SYS 820 : GOTO 1010
+```
 
 ## Page 085: 256 Bytes Continous Scroll: Wrong addressing mode
 
