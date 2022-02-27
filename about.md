@@ -14,7 +14,7 @@ Public talks/papers:
 - Sep/2021: Euromicro DSD conference: Co-author research paper "To Pin or Not to Pin: Asserting the Scalability of QEMU Parallel Implementation"
 - Jan/2020: MySQL PreFOSDEM talk: "Friends let real friends use MySQL 8.0"
 
-I have a public [development diary](https://github.com/saveriomiroddi/personal_notes/blob/master/extra/brojournal.md) for my open activity (the name is a satirical reference to the "brogramming" culture).
+I have a public [development diary](https://github.com/64kramsystem/personal_notes/blob/master/journal/brojournal.md) for my open activity (the name is a satirical reference to the "brogramming" culture).
 
 My boss described me in two strips:
 
