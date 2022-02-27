@@ -1,15 +1,13 @@
 ---
 layout: post
-title: "\"Machine Code Games Routines For The Commodore 64\" Errata (WIP)"
+title: "\"Machine Code Games Routines For The Commodore 64\" Errata"
 tags: [assembler,performance,retrocomputing]
-last_modified_at: 2022-02-27 20:25:00
+last_modified_at: 2022-02-27 20:26:00
 ---
 
 I'm reading the book [Machine Code Games Routines For The Commodore 64](https://archive.org/details/Machine_Code_Games_Routines_for_the_Commodore_64); since there is no errata, I'm publishing my findings.
 
 The pages referred are the printed ones.
-
-This article is a WIP; I'll update while I read (assuming I'll find other errata).
 
 Content:
 
@@ -21,10 +19,10 @@ Content:
 - [Page 085: 256 Bytes Continous Scroll: Wrong addressing mode](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-085-256-bytes-continous-scroll-wrong-addressing-mode)
 - [Page 090: Joystick handling: Misplaced comment](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-090-joystick-handling-misplaced-comment)
 - [Page 094: Attribute Flasher: Off-by-1 error](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-094-attribute-flasher-off-by-1-error)
-- [Page 095: Alternate Sprite System: Encoded sprite missing entry](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-094-alternate-sprite-system-encoded-sprite-missing-entry)
+- [Page 095: Alternate Sprite System: Encoded sprite missing entry](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-095-alternate-sprite-system-encoded-sprite-missing-entry)
 - [Page 111: Invalid tune entry](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-111-invalid-tune-entry)
 - [Pages 114/115: Mixed up Window Projection concepts](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#pages-114115-mixed-up-window-projection-concepts)
-- [Page 116: Projecting a Landscape: Many bugs](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#pages-114115-mixed-up-window-projection-concepts)
+- [Page 116: Projecting a Landscape: Many bugs](/Machine-Code-Games-Routines-For-The-Commodore-64-Errata#page-116-projecting-a-landscape-many-bugs)
 
 ## Page 012: JSR/RTS operation
 
