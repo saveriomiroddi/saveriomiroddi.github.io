@@ -8,6 +8,10 @@ shopt -s inherit_errexit
 
 v_book_name=
 v_cover_file=
+declare -A c_html_entities=(
+  [\']=39
+  [:]=58
+)
 
 function decode_cmdline_options {
   if [[ $# -ne 1 || $1 == -h || $1 == --help ]]; then
@@ -58,6 +62,18 @@ MD
   vim "_bookshelf/$v_book_name.md"
 }
 
+function escape_book_description {
+  for symbol in "${!c_html_entities[@]}"; do
+    local code=${c_html_entities[$symbol]}
+
+    export symbol code
+
+    # The lookbehind is only needed for the colon, but it's simpler to just leave it there.
+    #
+    perl -i -pe 's/(?<!^description)$ENV{symbol}/&#$ENV{code};/g if /^description:/' "_bookshelf/$v_book_name.md"
+  done
+}
+
 function start_server_and_open_blog {
   bundle exec jekyll serve &
   while ! nc -z localhost 4000; do sleep 0.25; done
@@ -85,6 +101,7 @@ set_book_name
 clear_existing_books
 add_image
 add_new_book_description
+escape_book_description
 start_server_and_open_blog
 create_branch
 create_commit
