@@ -17,7 +17,7 @@ c_front_matter_template='---
 layout: post
 title: "%s"
 tags: [%s]
-last_modified_at: 0000-00-00 00:00:00
+last_modified_at: %s
 ---
 
 *INTRODUCTION*
@@ -68,7 +68,7 @@ function add_article_file {
   escaped_description=$(escape_front_matter_value "$v_article_name")
 
   # shellcheck disable=2059 # (allow variable as template)
-  printf -- "$c_front_matter_template" "$escaped_description" "$(IFS=,; echo "${v_tags[*]}")" | tee "$filename"
+  printf -- "$c_front_matter_template" "$escaped_description" "$(IFS=,; echo "${v_tags[*]}")" "$(date +"%F %T")" | tee "$filename"
 }
 
 ################################################################################
