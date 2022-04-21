@@ -2,7 +2,7 @@
 layout: post
 title: Remotely running asynchronous commands/scripts via GNU Screen
 tags: [shell_scripting,sysadmin]
-last_modified_at: 2018-06-05 12:01:00
+last_modified_at: 2022-04-21 14:58:17
 ---
 
 In system administration, it's typical to perform long-running commands on remote hosts.
@@ -16,6 +16,7 @@ Contents:
 - [Script requirements](/Remotely-running-asynchronous-commands-scripts-via-gnu-screen#script-requirements)
 - [Script source](/Remotely-running-asynchronous-commands-scripts-via-gnu-screen#script-source)
 - [Script explanation](/Remotely-running-asynchronous-commands-scripts-via-gnu-screen#script-explanation)
+- [Alternatives](/Remotely-running-asynchronous-commands-scripts-via-gnu-screen#alternatives)
 - [Conclusion](/Remotely-running-asynchronous-commands-scripts-via-gnu-screen#conclusion)
 - [References](/Remotely-running-asynchronous-commands-scripts-via-gnu-screen#references)
 
@@ -225,6 +226,12 @@ The utility `shred` is used to avoid leaving sensitive informations on the disk,
 
 A general consideration is that it's possible to perform the whole operation without using a remote-residing script, however this requires some trickery (notably escaping, which makes the scripting messy), therefore it's simpler to use the above solution.
 
+## Alternatives
+
+The strategy explained is based on GNU Screen; this isn't the only tool available for the purpose though.
+
+An alternative is using [`at` and `batch`](https://linux.die.net/man/1/at); an interesting functionality (besides execution at a scheduled time) is to run when the system is idle, which avoids overloading the system on busy servers.
+
 ## Conclusion
 
 GNU Screen is an old-school, but still very valid, and it's a very helpful tool for system administration tasks.
@@ -232,7 +239,3 @@ GNU Screen is an old-school, but still very valid, and it's a very helpful tool 
 ## References
 
 - [GNU Screen commands reference](http://aperiodic.net/screen/commands:start)
-
-## Edits
-
-- _2018-06-05_: use Mutt for handling attachments; minor improvements to the Screen handling
