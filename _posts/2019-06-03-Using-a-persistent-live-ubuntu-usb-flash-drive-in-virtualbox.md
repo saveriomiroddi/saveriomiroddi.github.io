@@ -56,7 +56,7 @@ Note that `mkusb` has a bug that sometimes causes the flash drive write operatio
 
 ```sh
 username$ sudo su
-root# mksub
+root# mkusb
 ```
 
 Don't invoke mkusb via sudo:
