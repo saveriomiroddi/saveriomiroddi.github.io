@@ -84,7 +84,7 @@ function escape_front_matter_value {
     result=$(echo -n "$result" | perl -pe 's/$ENV{symbol}/&#$ENV{code};/g')
   done
 
-  echo -n "$result" | sed 's/"/\\"/'
+  echo -n "$result" | sed 's/"/\\"/g'
 }
 
 ################################################################################
