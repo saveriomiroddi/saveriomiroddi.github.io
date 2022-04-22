@@ -32,8 +32,9 @@ function decode_cmdline_options {
 
 function find_last_post {
   # shellcheck disable=2012 # don't use find
-  echo -n "$c_posts_path/$(ls -1 "$c_posts_path" | tail -n 1)"
+  ls -1 "$c_posts_path"/*.md | tail -n 1
 }
+
 function update_timestamp {
   declare -x timestamp
   timestamp=$(date +"%F %T")
