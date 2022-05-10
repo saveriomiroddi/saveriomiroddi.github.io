@@ -4,6 +4,7 @@ title: Linux&#58; Associating file types to applications
 tags: [linux,sysadmin,ubuntu]
 redirect_from:
 - Linux-associating_file_types_to_applications
+last_modified_at: 2022-05-11 00:07:43
 ---
 
 Associating file types (extensions, in Windows) to applications is a fundamental functionality of desktop environments.
@@ -163,7 +164,7 @@ $ glob_pattern='*.maff'
 $ mime_type="application/x-maff"
 $ file_comment="Maff File"
 
-$ sudo tee /tmp/maff.xml << XML
+$ sudo tee /usr/share/mime/packages/maff.xml << XML
 <?xml version="1.0" encoding="UTF-8"?>
 <mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
 <mime-type type="$mime_type">
