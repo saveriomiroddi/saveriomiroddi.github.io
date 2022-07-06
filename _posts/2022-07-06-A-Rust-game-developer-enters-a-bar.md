@@ -4,6 +4,8 @@ title: "A Rust game developer enters a bar"
 tags: [bevy,gamedev,humor,rust]
 ---
 
+(This summarizes very closely my experience with developing games with Rust game libraries. Those who have experience on building complete (even small, but still complete) games with Bevy will probably know which functionality the "two missing wheels" represent.)
+
 Foo goes to a car dealer, in order to purchase a car.
 
 \- This car is amazing... no wonder everybody wants one!<br/>
@@ -15,18 +17,18 @@ Foo goes to a car dealer, in order to purchase a car.
 \- ... uh?<br/>
 \- (Frowns) Well Sir, if you're such a bookworm, there's some guy around the corner who writes that kind of stuff.<br/>
 \- Ok.<br/>
-\- ... and if you want to learn advanced topics like accelerating, that guy provides a reference to another guy...<br/>
+\- ... and if you want to learn advanced topics, like accelerating, that guy provides a reference to another guy...<br/>
 \- Makes sense.<br/>
 \- ... and we have a hotline.<br/>
 \- (Happy) Well, as you said... "That's all I need!". Wait a second, though... (mumbles)... there's something else here... "not all the accessories are provided"<br/>
 \- Certainly, Sir! In order to produce the most advanced car in the world, we don't waste time on useless accessories. But clients can fit them on their own, if they wish!<br/>
-\- Well, it's accessories, anyway; fair enough. Bye!<br/>
-\- Goodbye sir, enjoy your new car!<br/>
+\- Well, it's accessories, anyway... Awesome! Bye!<br/>
+\- Goodbye Sir, enjoy your new car!<br/>
 
 Some time after, a friend of Foo, Bar, comes to see him from another country.
 
-\- Hey man! I've heard you've purchased a Lambeviny! You lucky bastard.<br/>
-\- Yeah! I'm super excited.<br/>
+\- Hey man! I've heard you've purchased a Lambeviny... you lucky bastard!<br/>
+\- Yeah! I'm super excited!!<br/>
 \- Why don't you take me for a ride?<br/>
 \- Well... it has a small... usability problem.<br/>
 \- Huh?<br/>
@@ -34,11 +36,11 @@ Some time after, a friend of Foo, Bar, comes to see him from another country.
 \- WAT!!<br/>
 \- Yeah, they don't produce such accessories.<br/>
 \- WAAAAAAAAAAAAAT!! But... how do you drive it?<br/>
-\- "Driving" it? What do you mean?<br/>
-\- I mean, going around with it, in the streets.<br/>
-\- Ah... that. Nobody does that here, man! They do it in the village across the river, and they ended up getting this odd square heads. But I'm taking care of it, don't worry...<br/>
+\- "Drive" it? What do you mean?<br/>
+\- Huh? I mean... going around with it, in the streets.<br/>
+\- Aaah... that. Nobody does that here, man! They do it in the village across the river, and they ended up getting this odd square heads. But I'm taking care of it anyway, don't worry...<br/>
 \- Phew! You had me for a moment.<br/>
-\- ... they're producing a gold-plated steering wheel. I've already ordered it.<br/>
+\- ... they're producing a gold-plated steering wheel; I've already ordered it!<br/>
 
 Bar goes back to his segfaults.
 
