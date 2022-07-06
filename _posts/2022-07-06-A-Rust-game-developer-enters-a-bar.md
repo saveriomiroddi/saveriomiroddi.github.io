@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "A Rust game developer enters a bar"
-tags: [bevy,gamedev,rust]
+tags: [bevy,gamedev,humor,rust]
 ---
 
 Foo goes to a car dealer, in order to purchase a car.
