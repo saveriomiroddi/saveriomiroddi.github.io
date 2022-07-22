@@ -4,7 +4,7 @@ title: "If Rust game engines were cars"
 tags: [bevy,gamedev,humor,rust]
 ---
 
-(This summarizes very closely my experience with developing games with Rust game libraries. Those who have experience on building complete (even small, but still complete) games with Bevy will probably know which functionality the "two missing wheels" represent.)
+(This summarizes closely my experience with developing games with Rust game libraries, primarily with Bevy (those who have experience with building complete (even small, but still complete) games with it, probably know which functionality the "two missing wheels" represents))
 
 Foo goes to a car dealer, in order to purchase a car.
 
@@ -31,16 +31,17 @@ Some time after, a friend of Foo, Bar, comes to see him from another country.
 \- Yeah! I'm super excited!!<br/>
 \- Why don't you take me for a ride?<br/>
 \- Well... it has a small... usability problem.<br/>
-\- Huh?<br/>
-\- It doesn't have two wheels.<br/>
+\- Which is?<br/>
+\- It's missing two wheels.<br/>
 \- WAT!!<br/>
 \- Yeah, they don't produce such accessories.<br/>
 \- WAAAAAAAAAAAAAT!! But... how do you drive it?<br/>
-\- "Drive" it? What do you mean?<br/>
-\- Huh? I mean... going around with it, in the streets.<br/>
-\- Aaah... that. Nobody does that here, man! They do it in the village across the river, and they ended up getting this odd square heads. But I'm taking care of it anyway, don't worry...<br/>
+\- I've called some experts to have a look at the car! They said that the car is brilliant!<br/>
+\- Uh... and did they fix it?<br/>
+\- Fix it? Why should I fix it?<br/>
+\- The wheels... you can't drive without them.<br/>
+\- Driving? Who cares about driving? Cars are for modding, man!! Nobody drives cars. Some crazy people drive them in the village across the river, but they're really weird - they look like blocky. Anyway, I'm taking care of the problem, don't worry...<br/>
 \- Phew! You had me for a moment.<br/>
-\- ... they're producing a gold-plated steering wheel; I've already ordered it!<br/>
+\- ... I'm modding the steering wheel!<br/>
 
 Bar goes back to his segfaults.
-
