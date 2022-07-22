@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "A Rust game developer enters a bar"
+title: "If Rust game engines were cars"
 tags: [bevy,gamedev,humor,rust]
 ---
 
