@@ -2,9 +2,10 @@
 layout: post
 title: "If Rust game engines were cars"
 tags: [bevy,gamedev,humor,rust]
+last_modified_at: 2022-07-26 14:29:00
 ---
 
-(This summarizes closely my experience with developing games with Rust game libraries, primarily with Bevy (those who have experience with building complete (even small, but still complete) games with it, probably know which functionality the "two missing wheels" represents))
+(While this article is humorous, and a bit snarky, it points out what I believe are significant issues in the Rust game development ecosystem. I'm following up with a serious article which describes my experience and my related opinions. Until then, this article should be taken just as a silly, humorous, piece)
 
 Foo goes to a car dealer, in order to purchase a car.
 
