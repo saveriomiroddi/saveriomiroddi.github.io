@@ -35,11 +35,24 @@ function find_last_post {
   ls -1 "$c_posts_path"/*.md | tail -n 1
 }
 
+function timestamp_present {
+  grep -qP '^last_modified_at:' "$v_post_filename"
+}
+
 function update_timestamp {
   declare -x timestamp
   timestamp=$(date +"%F %T")
 
   perl -i -pe 's/^last_modified_at: \K.+/$ENV{timestamp}/' "$v_post_filename"
+}
+
+function add_timestamp {
+  declare -x timestamp
+  timestamp=$(date +"%F %T")
+
+  # Assumes that the title doesn't match `---`
+  #
+  sed -zi "s/---/last_modified_at: $timestamp\n---/2" "$v_post_filename"
 }
 
 function update_toc {
@@ -55,6 +68,10 @@ function update_toc {
 
 decode_cmdline_options "$@"
 v_post_filename=${v_post_filename:-$(find_last_post)}
-update_timestamp
+if timestamp_present; then
+  update_timestamp
+else
+  add_timestamp
+fi
 update_toc
 
