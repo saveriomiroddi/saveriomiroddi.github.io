@@ -15,6 +15,7 @@ If <filename> is not specified, the last article is updated.
 
 c_posts_path=$(dirname "$0")/../_posts
 
+v_run_checks=1 # boolean; false=empty, true=anything else
 v_post_filename=
 
 ################################################################################
@@ -23,7 +24,7 @@ v_post_filename=
 
 function decode_cmdline_options {
   local params
-  params=$(getopt --options h --long help --name "$(basename "$0")" -- "$@")
+  params=$(getopt --options hc --long help,nocheck --name "$(basename "$0")" -- "$@")
 
   eval set -- "$params"
 
@@ -32,6 +33,9 @@ function decode_cmdline_options {
       -h|--help)
         echo "$c_help"
         exit 0 ;;
+      -c|--nocheck)
+        v_run_checks=
+        shift ;;
       --)
         shift
         break ;;
@@ -50,6 +54,16 @@ function decode_cmdline_options {
 function find_last_post {
   # shellcheck disable=2012 # don't use find
   ls -1 "$c_posts_path"/*.md | tail -n 1
+}
+
+# Make sure that we don't find a TOC with processed links, because we don't know if it's been updated
+# or not.
+#
+function check_table_has_no_processed_links {
+  if grep -qP '^- +\[.+\]\(/' "$v_post_filename"; then
+    >&2 echo "The post includes processed links! Regenerate the TOC, or update with --nocheck."
+    exit 1
+  fi
 }
 
 function timestamp_present {
@@ -76,6 +90,8 @@ function update_toc {
   declare -x escaped_title
   escaped_title=$(echo -n "$v_post_filename" | perl -ne 'print /\/[\d-]+(.+)\.md$/')
 
+  # See check_table_has_no_processed_links().
+  #
   perl -i -pe 's|^ *- \[.+\]\(\K(.+)|/$ENV{escaped_title}$1|' "$v_post_filename"
 }
 
@@ -85,6 +101,9 @@ function update_toc {
 
 decode_cmdline_options "$@"
 v_post_filename=${v_post_filename:-$(find_last_post)}
+if [[ -n $v_run_checks ]]; then
+  check_table_has_no_processed_links
+fi
 if timestamp_present; then
   update_timestamp
 else
