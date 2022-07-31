@@ -59,7 +59,7 @@ function update_toc {
   declare -x escaped_title
   escaped_title=$(echo -n "$v_post_filename" | perl -ne 'print /\/[\d-]+(.+)\.md$/')
 
-  perl -i -pe 's|^- \[.+\]\(\K(.+)|/$ENV{escaped_title}$1|' "$v_post_filename"
+  perl -i -pe 's|^ *- \[.+\]\(\K(.+)|/$ENV{escaped_title}$1|' "$v_post_filename"
 }
 
 ################################################################################
