@@ -90,6 +90,13 @@ function update_toc {
   declare -x escaped_title
   escaped_title=$(echo -n "$v_post_filename" | perl -ne 'print /\/[\d-]+(.+)\.md$/')
 
+  # Useful when testing, as one may create an unexpected title.
+  #
+  if [[ -z $escaped_title ]]; then
+    >&2 echo "Unexpected format for post filename!"
+    exit 1
+  fi
+
   # See check_table_has_no_processed_links().
   #
   perl -i -pe 's|^ *- \[.+\]\(\K(.+)|/$ENV{escaped_title}$1|' "$v_post_filename"
