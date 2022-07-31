@@ -2,7 +2,7 @@
 layout: post
 title: "Unexpected things users will find when moving from metal to the cloud (AWS)"
 tags: [aws,cloud,sysadmin]
-last_modified_at: 2022-07-27 13:50:42
+last_modified_at: 2022-07-31 23:23:45
 ---
 
 It's a well-known fact that when moving from metal to the cloud, costs will typically increase (hopefully, trading it for reduced maintenance and/or increased system resilience).
@@ -16,11 +16,11 @@ This article is updated to Jul/2022, and I will update it if/when I'll found oth
 Content:
 
 - [Disks (EBS), also for database services, have an I/O budget](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#disks-ebs-also-for-database-services-have-an-io-budget)
-  - [The bottom line](#the-bottom-line)
+  - [The bottom line](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#the-bottom-line)
 - [Storage services can't be stopped](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#storage-services-cant-be-stopped)
-  - [The bottom line](#the-bottom-line-1)
+  - [The bottom line](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#the-bottom-line-1)
 - [Last generation database services may not be necessarily reserved if they're Intel/AMD](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#last-generation-database-services-may-not-be-necessarily-reserved-if-theyre-intelamd)
-  - [The bottom line](#the-bottom-line-2)
+  - [The bottom line](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#the-bottom-line-2)
 
 ## Disks (EBS), also for database services, have an I/O budget
 
