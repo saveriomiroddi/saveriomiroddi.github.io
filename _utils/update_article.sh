@@ -22,7 +22,24 @@ v_post_filename=
 ################################################################################
 
 function decode_cmdline_options {
-  if [[ $# -gt 1 || ${1:-} == -h || ${1:-} == --help ]]; then
+  local params
+  params=$(getopt --options h --long help --name "$(basename "$0")" -- "$@")
+
+  eval set -- "$params"
+
+  while true; do
+    case $1 in
+      -h|--help)
+        echo "$c_help"
+        exit 0 ;;
+      --)
+        shift
+        break ;;
+    esac
+  done
+
+
+  if [[ $# -gt 1 ]]; then
     echo "$c_help"
     exit
   fi
