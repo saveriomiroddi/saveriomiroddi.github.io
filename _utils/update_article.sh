@@ -110,4 +110,3 @@ else
   add_timestamp
 fi
 update_toc
-
