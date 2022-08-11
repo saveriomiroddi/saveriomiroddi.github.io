@@ -5,6 +5,7 @@ tags: [linux,sysadmin,ubuntu]
 last_modified_at: 2022-08-09 11:40:59
 redirect_from:
 - Quickly-building-a-custom-linux-ubuntu-kernel-with-modified-configuration-kernel-timer-frequency
+- Quickly-building-a-custom-linux-ubuntu-kernel-with-modified-configuration-kernel-timer-frequency/
 ---
 
 Under certain circumstances, it can be necessary to build a customized Linux kernel, for example, with a different configuration, or with patches applied.
