@@ -29,6 +29,10 @@ Content:
 ## First Header
 
 '
+c_help="Usage: $(basename "$0") <article_name>
+
+Creates the branch, and the article file.
+"
 c_posts_path=$(dirname "$0")/../_posts
 c_tags_path=$(dirname "$0")/../_tags
 c_branch_prefix=add_article_
@@ -39,11 +43,7 @@ c_branch_prefix=add_article_
 
 function decode_cmdline_options {
   if [[ $# -ne 1 || $1 == -h || $1 == --help ]]; then
-    echo "\
-Usage: $(basename "$0") <article_name>
-
-Creates the branch, and the article file.
-"
+    echo "$c_help"
     exit
   fi
 
