@@ -32,7 +32,6 @@ Content:
 c_posts_path=$(dirname "$0")/../_posts
 c_tags_path=$(dirname "$0")/../_tags
 
-v_article_name=
 v_tags=
 
 ################################################################################
@@ -50,8 +49,14 @@ Usage: $(basename "$0") <article_name>
   v_article_name=$1
 }
 
-function prepare_filename {
-  echo -n "$c_posts_path/$(date +"%F")-$(echo -n "$v_article_name" | perl -pe 's/[^\w.]+/-/gi').md"
+function prepare_article_bare_name {
+  echo -n "$(echo -n "$v_article_name" | perl -pe 's/[^\w.]+/-/gi')"
+}
+
+function prepare_article_filename {
+  local article_bare_name=$1
+
+  echo -n "$c_posts_path/$(date +"%F")-$article_bare_name.md"
 }
 
 function find_and_set_tags {
@@ -92,6 +97,7 @@ function escape_front_matter_value {
 ################################################################################
 
 decode_cmdline_options "$@"
-filename=$(prepare_filename)
+article_bare_name=$(prepare_article_bare_name)
+article_filename=$(prepare_article_filename "$article_bare_name")
 find_and_set_tags # sets v_tags
-add_article_file "$filename"
+add_article_file "$article_filename"
