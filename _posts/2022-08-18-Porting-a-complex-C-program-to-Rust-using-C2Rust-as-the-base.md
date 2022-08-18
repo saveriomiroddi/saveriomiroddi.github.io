@@ -101,3 +101,197 @@ perl -i -0777 -pe 's/print(int|long)\((\S+) as .+?,/port_temp_print_str(\&$2.to_
 - overflow bug
 - off-by-one bug in Carmack's code (warp[2], size=2)
 - off-by-one bug in rleexpand (in the port; not verified the ASM source)
+
+## Unsorted notes
+
+### Notes 1
+
+Transpiling issues:
+
+- there are lots of unnecessary casts, often double casts
+  - even when comparing to literals
+    - https://github.com/immunant/c2rust/issues/622
+- lots of types are duplicated
+- functions and globals are all treated as imported C functions
+  - makes difficult to navigate
+  - this is intentional ("modules are intended to be compiled in isolation in order to produce compatible object files")
+- `-(1 as libc::c_int)` occurrences (opened issue)
+
+- ideal/tools
+  - find out if the variables of a struct are shared across files, or private to them
+  - clippy: find out which functions/blocks don't need unsafe anymore
+  - intellij's only relevant refactoring is [introduce parameter](https://plugins.jetbrains.com/plugin/8182-rust/docs/rust-refactorings.html#extractparam-refactoring)
+
+- doubts/confirmations
+  - for numeric comparisons against numbers, can u8 and i8 be interchangeably used?
+    - `ch as i32 >= ' '` -> if ch was negative, this will be a wrong check!
+    - `int a = -1; char c  = ' '; printf("c:%d, nc:%d", (uint)a > (uint)c, a > c);`
+  - think about why functions are stored a C functions, and converted to C imports
+  - double check endianness
+  - is signed ints the base data type
+
+- gotchas!
+  - when converting an array to CString, don't forget _not_ to include the terminator
+
+### Notes 2
+
+- split c2rust in two; the most difficult part is the decompiler
+
+c2 rust problems:
+
+- duplication
+- enums are not rustified
+- enum matches uses numbers rather than enum entries (or at least, the consts)
+- pollution with signed casts, even for literals, and even when it could be removed from both sides of an equality test
+- encodes for loops as while
+  - this generates unnecessarily complex code in some cases
+  - https://github.com/immunant/c2rust/issues/621
+- adds odd `fresh` variables on postincrements
+  - https://github.com/immunant/c2rust/issues/333
+
+c to rust strategies:
+
+- de-global strategies
+  - graph analizer; c helps because, up to a point, it can be easily parsed (not polymorphism)
+  - use a globalstate (adviced!)
+  - group globals into scopes, and covert the scopes to classes
+    - secondary, as this is just a tidy up
+
+### Poor man's refactorer: Cargo info
+
+There's lots of other stuff; the below is related to the errors.
+
+```json
+[
+  {
+    "reason": "compiler-message",
+    "package_id": "catacomb 0.1.0 (path+file:///home/saverio/code/catacomb_ii-64k)",
+    "manifest_path": "/home/saverio/code/catacomb_ii-64k/Cargo.toml",
+    "target": {
+      "kind": [
+        "staticlib",
+        "rlib"
+      ],
+      "crate_types": [
+        "staticlib",
+        "rlib"
+      ],
+      "name": "catacomb_lib",
+      "src_path": "/home/saverio/code/catacomb_ii-64k/src/catacomb-lib.rs",
+      "edition": "2018",
+      "doc": true,
+      "doctest": true,
+      "test": true
+    },
+    "message": {
+      "rendered": "error[E0609]: no field `xormask` on type `&mut PcrlibAState`\n   --> src/cpanel.rs:446:9\n    |\n446 |     pas.xormask = 0;\n    |         ^^^^^^^ unknown field\n    |\n    = note: available fields are: `SoundData`, `soundmode`, `SndPriority`, `_dontplay`, `AudioMutex` ... and 19 others\n\n",
+      "children": [
+        {
+          "children": [],
+          "code": null,
+          "level": "note",
+          "message": "available fields are: `SoundData`, `soundmode`, `SndPriority`, `_dontplay`, `AudioMutex` ... and 19 others",
+          "rendered": null,
+          "spans": []
+        }
+      ],
+      "code": {
+        "code": "E0609",
+        "explanation": "Attempted to access a non-existent field in a struct.\n\nErroneous code example:\n\n```compile_fail,E0609\nstruct StructWithFields {\n    x: u32,\n}\n\nlet s = StructWithFields { x: 0 };\nprintln!(\"{}\", s.foo); // error: no field `foo` on type `StructWithFields`\n```\n\nTo fix this error, check that you didn't misspell the field's name or that the\nfield actually exists. Example:\n\n```\nstruct StructWithFields {\n    x: u32,\n}\n\nlet s = StructWithFields { x: 0 };\nprintln!(\"{}\", s.x); // ok!\n```\n"
+      },
+      "level": "error",
+      "message": "no field `xormask` on type `&mut PcrlibAState`",
+      "spans": [
+        {
+          "byte_end": 14049,
+          "byte_start": 14042,
+          "column_end": 16,
+          "column_start": 9,
+          "expansion": null,
+          "file_name": "src/cpanel.rs",
+          "is_primary": true,
+          "label": "unknown field",
+          "line_end": 446,
+          "line_start": 446,
+          "suggested_replacement": null,
+          "suggestion_applicability": null,
+          "text": [
+            {
+              "highlight_end": 16,
+              "highlight_start": 9,
+              "text": "    pas.xormask = 0;"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "reason": "compiler-message",
+    "package_id": "catacomb 0.1.0 (path+file:///home/saverio/code/catacomb_ii-64k)",
+    "manifest_path": "/home/saverio/code/catacomb_ii-64k/Cargo.toml",
+    "target": {
+      "kind": [
+        "staticlib",
+        "rlib"
+      ],
+      "crate_types": [
+        "staticlib",
+        "rlib"
+      ],
+      "name": "catacomb_lib",
+      "src_path": "/home/saverio/code/catacomb_ii-64k/src/catacomb-lib.rs",
+      "edition": "2018",
+      "doc": true,
+      "doctest": true,
+      "test": true
+    },
+    "message": {
+      "rendered": "error[E0560]: struct `PcrlibAState` has no field named `xormask`\n   --> src/pcrlib_a_state.rs:106:13\n    |\n106 |             xormask,\n    |             ^^^^^^^ `PcrlibAState` does not have this field\n    |\n    = note: available fields are: `SoundData`, `soundmode`, `SndPriority`, `_dontplay`, `AudioMutex` ... and 19 others\n\n",
+      "children": [
+        {
+          "children": [],
+          "code": null,
+          "level": "note",
+          "message": "available fields are: `SoundData`, `soundmode`, `SndPriority`, `_dontplay`, `AudioMutex` ... and 19 others",
+          "rendered": null,
+          "spans": []
+        }
+      ],
+      "code": {
+        "code": "E0560",
+        "explanation": "An unknown field was specified into a structure.\n\nErroneous code example:\n\n```compile_fail,E0560\nstruct Simba {\n    mother: u32,\n}\n\nlet s = Simba { mother: 1, father: 0 };\n// error: structure `Simba` has no field named `father`\n```\n\nVerify you didn't misspell the field's name or that the field exists. Example:\n\n```\nstruct Simba {\n    mother: u32,\n    father: u32,\n}\n\nlet s = Simba { mother: 1, father: 0 }; // ok!\n```\n"
+      },
+      "level": "error",
+      "message": "struct `PcrlibAState` has no field named `xormask`",
+      "spans": [
+        {
+          "byte_end": 2899,
+          "byte_start": 2892,
+          "column_end": 20,
+          "column_start": 13,
+          "expansion": null,
+          "file_name": "src/pcrlib_a_state.rs",
+          "is_primary": true,
+          "label": "`PcrlibAState` does not have this field",
+          "line_end": 106,
+          "line_start": 106,
+          "suggested_replacement": null,
+          "suggestion_applicability": null,
+          "text": [
+            {
+              "highlight_end": 20,
+              "highlight_start": 13,
+              "text": "            xormask,"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "reason": "build-finished",
+    "success": false
+  }
+]
+```
