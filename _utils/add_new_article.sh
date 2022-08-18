@@ -32,8 +32,6 @@ Content:
 c_posts_path=$(dirname "$0")/../_posts
 c_tags_path=$(dirname "$0")/../_tags
 
-v_tags=
-
 ################################################################################
 # MAIN ROUTINES
 ################################################################################
@@ -59,12 +57,16 @@ function prepare_article_filename {
   echo -n "$c_posts_path/$(date +"%F")-$article_bare_name.md"
 }
 
-function find_and_set_tags {
-  mapfile -td$'\n' v_tags < <(find "$c_tags_path" -type f -printf '%P\n' | sed 's/\.md$//' | sort)
+# Return the tags, sorted, one per line.
+#
+function find_tags {
+  find "$c_tags_path" -type f -printf '%P\n' | sed 's/\.md$//' | sort
 }
 
 function add_article_file {
-  local filename=$1
+  local filename=$1 raw_tags=$2 tags
+
+  mapfile -td$'\n' tags <<< "$raw_tags"
 
   echo "File: $filename"
   echo
@@ -73,7 +75,7 @@ function add_article_file {
   escaped_description=$(escape_front_matter_value "$v_article_name")
 
   # shellcheck disable=2059 # (allow variable as template)
-  printf -- "$c_front_matter_template" "$escaped_description" "$(IFS=,; echo "${v_tags[*]}")" | tee "$filename"
+  printf -- "$c_front_matter_template" "$escaped_description" "$(IFS=,; echo "${tags[*]}")" | tee "$filename"
 }
 
 ################################################################################
@@ -99,5 +101,5 @@ function escape_front_matter_value {
 decode_cmdline_options "$@"
 article_bare_name=$(prepare_article_bare_name)
 article_filename=$(prepare_article_filename "$article_bare_name")
-find_and_set_tags # sets v_tags
-add_article_file "$article_filename"
+v_raw_tags=$(find_tags)
+add_article_file "$article_filename" "$v_raw_tags"
