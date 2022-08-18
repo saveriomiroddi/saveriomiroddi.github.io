@@ -31,6 +31,7 @@ Content:
 '
 c_posts_path=$(dirname "$0")/../_posts
 c_tags_path=$(dirname "$0")/../_tags
+c_branch_prefix=add_article_
 
 ################################################################################
 # MAIN ROUTINES
@@ -40,6 +41,8 @@ function decode_cmdline_options {
   if [[ $# -ne 1 || $1 == -h || $1 == --help ]]; then
     echo "\
 Usage: $(basename "$0") <article_name>
+
+Creates the branch, and the article file.
 "
     exit
   fi
@@ -49,6 +52,13 @@ Usage: $(basename "$0") <article_name>
 
 function prepare_article_bare_name {
   echo -n "$(echo -n "$v_article_name" | perl -pe 's/[^\w.]+/-/gi')"
+}
+
+function create_git_branch {
+  local article_bare_name=${1,,}
+  article_bare_name=${article_bare_name//-/_}
+
+  git checkout -b "$c_branch_prefix$article_bare_name"
 }
 
 function prepare_article_filename {
@@ -100,6 +110,7 @@ function escape_front_matter_value {
 
 decode_cmdline_options "$@"
 article_bare_name=$(prepare_article_bare_name)
+create_git_branch "$article_bare_name"
 article_filename=$(prepare_article_filename "$article_bare_name")
 v_raw_tags=$(find_tags)
 add_article_file "$article_filename" "$v_raw_tags"
