@@ -29,11 +29,13 @@ Content:
 ## First Header
 
 '
+c_help="Usage: $(basename "$0") <article_name>
+
+Creates the branch, and the article file.
+"
 c_posts_path=$(dirname "$0")/../_posts
 c_tags_path=$(dirname "$0")/../_tags
-
-v_article_name=
-v_tags=
+c_branch_prefix=add_article_
 
 ################################################################################
 # MAIN ROUTINES
@@ -41,25 +43,40 @@ v_tags=
 
 function decode_cmdline_options {
   if [[ $# -ne 1 || $1 == -h || $1 == --help ]]; then
-    echo "\
-Usage: $(basename "$0") <article_name>
-"
+    echo "$c_help"
     exit
   fi
 
   v_article_name=$1
 }
 
-function prepare_filename {
-  echo -n "$c_posts_path/$(date +"%F")-$(echo -n "$v_article_name" | perl -pe 's/[^\w.]+/-/gi').md"
+function prepare_article_bare_name {
+  echo -n "$(echo -n "$v_article_name" | perl -pe 's/[^\w.]+/-/gi')"
 }
 
-function find_and_set_tags {
-  mapfile -td$'\n' v_tags < <(find "$c_tags_path" -type f -printf '%P\n' | sed 's/\.md$//' | sort)
+function create_git_branch {
+  local article_bare_name=${1,,}
+  article_bare_name=${article_bare_name//-/_}
+
+  git checkout -b "$c_branch_prefix$article_bare_name"
+}
+
+function prepare_article_filename {
+  local article_bare_name=$1
+
+  echo -n "$c_posts_path/$(date +"%F")-$article_bare_name.md"
+}
+
+# Return the tags, sorted, one per line.
+#
+function find_tags {
+  find "$c_tags_path" -type f -printf '%P\n' | sed 's/\.md$//' | sort
 }
 
 function add_article_file {
-  local filename=$1
+  local filename=$1 raw_tags=$2 tags
+
+  mapfile -td$'\n' tags <<< "$raw_tags"
 
   echo "File: $filename"
   echo
@@ -68,7 +85,7 @@ function add_article_file {
   escaped_description=$(escape_front_matter_value "$v_article_name")
 
   # shellcheck disable=2059 # (allow variable as template)
-  printf -- "$c_front_matter_template" "$escaped_description" "$(IFS=,; echo "${v_tags[*]}")" | tee "$filename"
+  printf -- "$c_front_matter_template" "$escaped_description" "$(IFS=,; echo "${tags[*]}")" | tee "$filename"
 }
 
 ################################################################################
@@ -92,6 +109,8 @@ function escape_front_matter_value {
 ################################################################################
 
 decode_cmdline_options "$@"
-filename=$(prepare_filename)
-find_and_set_tags # sets v_tags
-add_article_file "$filename"
+article_bare_name=$(prepare_article_bare_name)
+create_git_branch "$article_bare_name"
+article_filename=$(prepare_article_filename "$article_bare_name")
+v_raw_tags=$(find_tags)
+add_article_file "$article_filename" "$v_raw_tags"
