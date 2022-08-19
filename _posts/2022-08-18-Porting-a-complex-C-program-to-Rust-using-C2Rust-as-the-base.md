@@ -115,7 +115,9 @@ Transpiling issues:
 - functions and globals are all treated as imported C functions
   - makes difficult to navigate
   - this is intentional ("modules are intended to be compiled in isolation in order to produce compatible object files")
-- `-(1 as libc::c_int)` occurrences (opened issue)
+- `-(1 as libc::c_int)` occurrences
+  - opened issue
+  - due to the C standard; interesting the edge case `-2147483648` (2147483648 is outside the signed int range)
 
 - ideal/tools
   - find out if the variables of a struct are shared across files, or private to them
