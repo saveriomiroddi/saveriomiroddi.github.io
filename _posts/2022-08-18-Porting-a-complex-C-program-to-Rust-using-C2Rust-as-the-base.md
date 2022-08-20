@@ -98,9 +98,10 @@ perl -i -0777 -pe 's/print(int|long)\((\S+) as .+?,/port_temp_print_str(\&$2.to_
 
 ## Interesting bugs
 
-- overflow bug
+- overflow bug in audio routine
 - off-by-one bug in Carmack's code (warp[2], size=2)
 - off-by-one bug in rleexpand (in the port; not verified the ASM source)
+  - bug in buffer size (4096 -> 4338)
 
 ## Unsorted notes
 
