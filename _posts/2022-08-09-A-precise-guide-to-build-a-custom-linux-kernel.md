@@ -2,7 +2,7 @@
 layout: post
 title: A precise guide to building a custom Linux kernel
 tags: [linux,sysadmin,ubuntu]
-last_modified_at: 2022-08-09 11:40:59
+last_modified_at: 2022-08-22 11:38:03
 redirect_from:
 - Quickly-building-a-custom-linux-ubuntu-kernel-with-modified-configuration-kernel-timer-frequency
 - Quickly-building-a-custom-linux-ubuntu-kernel-with-modified-configuration-kernel-timer-frequency/
@@ -45,7 +45,7 @@ sudo apt install libncurses5 libncurses5-dev libncurses-dev qtbase5-dev-tools fl
 
 There are different repositories available:
 
-- `git@github.com:torvalds/linux.git`: Official (Torvalds') kernel repository; doesn't include patch versions
+- `https://github.com/torvalds/linux.git`: Official (Torvalds') kernel repository; doesn't include patch versions
 - `git://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux/+git/focal`: Canonical release versions (see [here](https://wiki.ubuntu.com/Kernel/Dev/KernelGitGuide))
 - `git://git.launchpad.net/~ubuntu-kernel-test/ubuntu/+source/linux/+git/mainline-crack`: Canonical mainline/testing versions
 
