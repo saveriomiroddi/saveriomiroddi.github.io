@@ -47,6 +47,7 @@ perl -i -0777 -pe 's/print(int|long)\((\S+) as .+?,/port_temp_print_str(\&$2.to_
   - even when comparing to literals (https://github.com/immunant/c2rust/issues/622)
 - `-(1 as libc::c_int)` occurrences (https://github.com/immunant/c2rust/issues/623)
   - due to the C standard; interesting the edge case `-2147483648` (2147483648 is outside the signed int range)
+- type is always specified in variable definition `let`, which is redundant
 - lots of types duplication; functions and globals are all treated as imported C functions
   - makes it difficult to navigate
   - this is intentional ("modules are intended to be compiled in isolation in order to produce compatible object files")
