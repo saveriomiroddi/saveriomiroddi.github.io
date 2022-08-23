@@ -31,8 +31,7 @@ perl -i -0777 -pe 's/print(int|long)\((\S+) as .+?,/port_temp_print_str(\&$2.to_
 
 - comments are lost
 - macros are not translated
-  - symbolic constants are not translated
-    - https://github.com/immunant/c2rust/issues/16
+  - symbolic constants are not translated (https://github.com/immunant/c2rust/issues/16)
 - enums are translated with an adhoc typedef, and constants with numbers assigned
   - in theory this could work, but in practice it doesn't, because enums are stored as numbers in structs, and they're converted to/from numbers when used
   - see "C patterns" section
@@ -44,6 +43,16 @@ perl -i -0777 -pe 's/print(int|long)\((\S+) as .+?,/port_temp_print_str(\&$2.to_
     - `&mut`
   - clean: `demoptr.offset_from(demobuffer.as_ptr())`
 - extensive usage of mutable pointers, even when they aren't required
+- unnecessary casts, often double casts
+  - even when comparing to literals (https://github.com/immunant/c2rust/issues/622)
+- `-(1 as libc::c_int)` occurrences (https://github.com/immunant/c2rust/issues/623)
+  - due to the C standard; interesting the edge case `-2147483648` (2147483648 is outside the signed int range)
+- lots of types duplication; functions and globals are all treated as imported C functions
+  - makes it difficult to navigate
+  - this is intentional ("modules are intended to be compiled in isolation in order to produce compatible object files")
+- encodes for loops as while (https://github.com/immunant/c2rust/issues/621)
+  - this generates unnecessarily complex code in some cases
+- adds odd `fresh` variables on postincrements (https://github.com/immunant/c2rust/issues/333)
 
 ## Convenient lints
 
@@ -71,6 +80,7 @@ perl -i -0777 -pe 's/print(int|long)\((\S+) as .+?,/port_temp_print_str(\&$2.to_
 
 ## C patterns/APIs/port strategies
 
+- char sign: in the port, it was simple, because it was signed
 - globals
   - convert to "state instances", and pass them around
   - later, convert to classes + instance variables
@@ -90,77 +100,28 @@ perl -i -0777 -pe 's/print(int|long)\((\S+) as .+?,/port_temp_print_str(\&$2.to_
 - C strings
   - one can use Cstr/CString; later, convert to String (or Path/Buf)
     - in a program like this, Path/Buf are not necessary, and can be avoided for simplicity
+  - when converting an array to CString, don't forget _not_ to include the terminator
 - signed ints are the base binary/character type
   - very annoying, since Rust base binary type is u8
   - at least, raw pointer casts are liberal
 - pointers to buffers (`demoptr`)
   - convert them to usize
 
-## Interesting bugs
+## Bugs found
 
 - overflow bug in audio routine
 - off-by-one bug in Carmack's code (warp[2], size=2)
 - off-by-one bug in rleexpand (in the port; not verified the ASM source)
   - bug in buffer size (4096 -> 4338)
 
-## Unsorted notes
+## General considerations/ideas
 
-### Notes 1
+- Split c2rust in two; the most difficult part is the decompiler
+- find out if the variables of a struct are shared across files, or private to them
+- clippy: find out which functions/blocks don't need unsafe anymore
+- intellij's only relevant refactoring is [introduce parameter](https://plugins.jetbrains.com/plugin/8182-rust/docs/rust-refactorings.html#extractparam-refactoring)
 
-Transpiling issues:
-
-- there are lots of unnecessary casts, often double casts
-  - even when comparing to literals
-    - https://github.com/immunant/c2rust/issues/622
-- lots of types are duplicated
-- functions and globals are all treated as imported C functions
-  - makes difficult to navigate
-  - this is intentional ("modules are intended to be compiled in isolation in order to produce compatible object files")
-- `-(1 as libc::c_int)` occurrences
-  - opened issue
-  - due to the C standard; interesting the edge case `-2147483648` (2147483648 is outside the signed int range)
-
-- ideal/tools
-  - find out if the variables of a struct are shared across files, or private to them
-  - clippy: find out which functions/blocks don't need unsafe anymore
-  - intellij's only relevant refactoring is [introduce parameter](https://plugins.jetbrains.com/plugin/8182-rust/docs/rust-refactorings.html#extractparam-refactoring)
-
-- doubts/confirmations
-  - for numeric comparisons against numbers, can u8 and i8 be interchangeably used?
-    - `ch as i32 >= ' '` -> if ch was negative, this will be a wrong check!
-    - `int a = -1; char c  = ' '; printf("c:%d, nc:%d", (uint)a > (uint)c, a > c);`
-  - think about why functions are stored a C functions, and converted to C imports
-  - double check endianness
-  - is signed ints the base data type
-
-- gotchas!
-  - when converting an array to CString, don't forget _not_ to include the terminator
-
-### Notes 2
-
-- split c2rust in two; the most difficult part is the decompiler
-
-c2 rust problems:
-
-- duplication
-- enums are not rustified
-- enum matches uses numbers rather than enum entries (or at least, the consts)
-- pollution with signed casts, even for literals, and even when it could be removed from both sides of an equality test
-- encodes for loops as while
-  - this generates unnecessarily complex code in some cases
-  - https://github.com/immunant/c2rust/issues/621
-- adds odd `fresh` variables on postincrements
-  - https://github.com/immunant/c2rust/issues/333
-
-c to rust strategies:
-
-- de-global strategies
-  - graph analizer; c helps because, up to a point, it can be easily parsed (not polymorphism)
-  - use a globalstate (adviced!)
-  - group globals into scopes, and covert the scopes to classes
-    - secondary, as this is just a tidy up
-
-### Poor man's refactorer: Cargo info
+## Poor man's refactorer: Cargo info
 
 There's lots of other stuff; the below is related to the errors.
 
