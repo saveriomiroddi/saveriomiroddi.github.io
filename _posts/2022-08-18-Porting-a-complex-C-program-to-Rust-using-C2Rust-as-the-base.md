@@ -58,7 +58,7 @@ perl -i -0777 -pe 's/print(int|long)\((\S+) as .+?,/port_temp_print_str(\&$2.to_
 ## Convenient lints
 
 ```rs
-#![deny(
+#![warn(
     clippy::assign_op_pattern,
     clippy::correctness,
     clippy::precedence,
