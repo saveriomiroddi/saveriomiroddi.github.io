@@ -2,7 +2,7 @@
 layout: post
 title: A precise guide to building a custom Linux kernel
 tags: [linux,sysadmin,ubuntu]
-last_modified_at: 2022-09-26 17:37:04
+last_modified_at: 2022-10-09 00:51:31
 redirect_from:
 - Quickly-building-a-custom-linux-ubuntu-kernel-with-modified-configuration-kernel-timer-frequency
 - Quickly-building-a-custom-linux-ubuntu-kernel-with-modified-configuration-kernel-timer-frequency/
@@ -23,7 +23,7 @@ Content:
 - [Patching the kernel](/A-precise-guide-to-build-a-custom-linux-kernel#patching-the-kernel)
 - [Kernel configuration concepts](/A-precise-guide-to-build-a-custom-linux-kernel#kernel-configuration-concepts)
 - [Tools to set up and modify the kernel configuration](/A-precise-guide-to-build-a-custom-linux-kernel#tools-to-set-up-and-modify-the-kernel-configuration)
-- [Necessary changes](/A-precise-guide-to-build-a-custom-linux-kernel#necessary-changes)
+- [Necessary/convenient changes](/A-precise-guide-to-build-a-custom-linux-kernel#necessaryconvenient-changes)
 - [Applying the desired customizations](/A-precise-guide-to-build-a-custom-linux-kernel#applying-the-desired-customizations)
 - [Building the kernel](/A-precise-guide-to-build-a-custom-linux-kernel#building-the-kernel)
 - [Conclusion](/A-precise-guide-to-build-a-custom-linux-kernel#conclusion)
@@ -148,11 +148,11 @@ It's certainly possible, if one wants, to run the interactive program and perfor
 - `--set-val`:  set a value
 - `--set-str`:  set a quoted value
 
-## Necessary changes
+## Necessary/convenient changes
 
 Before proceeding with the customizations, there are some changes to apply.
 
-On Ubuntu/Debian configurations, we must specify not to bake extra trusted X.509 keys into the kernel (used to verify kernel modules; see [here](https://cs4118.github.io/dev-guides/debian-kernel-compilation.html)):
+The first is necessary on Ubuntu/Debian configurations; we must specify not to bake extra trusted X.509 keys into the kernel (used to verify kernel modules; see [here](https://cs4118.github.io/dev-guides/debian-kernel-compilation.html)):
 
 ```sh
 scripts/config --set-str SYSTEM_TRUSTED_KEYS ""
@@ -160,6 +160,22 @@ scripts/config --set-str SYSTEM_REVOCATION_KEYS ""
 ```
 
 Without this change, the kernel compilation will raise an error like `No rule to make target 'debian/canonical-certs.pem', needed by 'certs/x509_certificate_list`.
+
+Then, we disable the debug information; by default (as of v5.19), an extra 1.2 GiB package is generated, containing the kernel debugging information, which is not useful for the general public.
+
+The easiest way to disable it interactively; the entry is located under `Kernel hacking` -> `Compile-time checks and compiler options` -> `Compile the kernel with debug info`.
+
+On a v5.19 kernel, the corresponding programmatic changes are:
+
+```sh
+scripts/config --undefine DEBUG_INFO
+scripts/config --undefine DEBUG_INFO_COMPRESSED
+scripts/config --undefine DEBUG_INFO_REDUCED
+scripts/config --undefine DEBUG_INFO_SPLIT
+scripts/config --undefine GDB_SCRIPTS
+scripts/config --set-val  DEBUG_INFO_DWARF5     n
+scripts/config --set-val  DEBUG_INFO_NONE       y
+```
 
 ## Applying the desired customizations
 
