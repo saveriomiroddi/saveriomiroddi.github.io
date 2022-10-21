@@ -2,6 +2,7 @@
 layout: post
 title: Learn to prepare PPA packages, by setting up a Ruby PPA
 tags: [distribution,linux,packaging,ruby,shell_scripting,sysadmin,ubuntu]
+last_modified_at: 2022-10-22 00:18:46
 ---
 
 (Those looking for a ready Ruby PPA, please have a look at the [announcement article]({% post_url 2020-05-26-Announcement-Ticketsolve-s-Ruby-PPA-is-available %}) )
@@ -484,7 +485,7 @@ We've built our Ruby, and made it available for (internal) distribution.
 
 It's not exactly a trivial job (it costed me a lot of hair), but it can be scripted easily, and most importantly, I find PPAs a great platform for software distribution, in particular, considering that nowadays a certain value is put into tracing the exact (open) software production chain (see, for example, the Debian [Reproducible Build initiative](https://wiki.debian.org/ReproducibleBuilds)).
 
-If one wants to explore how more complex projects are packaged (or, to exact, even how to _properly_ package Ruby for large distribution), it's a child's play - just use the specific `add-apt-repository` option:
+If one wants to explore how more complex projects are packaged (or, to be exact, even how to _properly_ package Ruby for large distribution), it's a child's play - just use the specific `add-apt-repository` option:
 
 ```sh
 sudo add-apt-repository -y --enable-source ppa:brightbox/ruby-ng
