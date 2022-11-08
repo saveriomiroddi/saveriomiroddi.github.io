@@ -87,7 +87,7 @@ function add_article_file {
   escaped_description=$(escape_front_matter_value "$v_article_name")
 
   # shellcheck disable=2059 # (allow variable as template)
-  printf -- "$c_front_matter_template" "$escaped_description" "$(IFS=,; echo "${tags[*]}")" | tee "$filename"
+  printf -- "$c_front_matter_template" "$escaped_description" "$(IFS=,; echo "${tags[*]}")" > "$filename"
 }
 
 function open_article {
