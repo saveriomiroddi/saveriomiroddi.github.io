@@ -37,6 +37,8 @@ c_posts_path=$(dirname "$0")/../_posts
 c_tags_path=$(dirname "$0")/../_tags
 c_branch_prefix=add_article_
 
+c_editor_program=code
+
 ################################################################################
 # MAIN ROUTINES
 ################################################################################
@@ -88,6 +90,12 @@ function add_article_file {
   printf -- "$c_front_matter_template" "$escaped_description" "$(IFS=,; echo "${tags[*]}")" | tee "$filename"
 }
 
+function open_article {
+  local filename=$1
+
+  "$c_editor_program" "$filename"
+}
+
 ################################################################################
 # HELPERS
 ################################################################################
@@ -114,3 +122,4 @@ create_git_branch "$article_bare_name"
 article_filename=$(prepare_article_filename "$article_bare_name")
 v_raw_tags=$(find_tags)
 add_article_file "$article_filename" "$v_raw_tags"
+open_article "$article_filename"
