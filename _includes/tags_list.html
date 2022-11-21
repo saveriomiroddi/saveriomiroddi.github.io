@@ -13,7 +13,7 @@ Parameters:
       {% capture tagsList %}{{ tagsList }}, {% endcapture %}
     {% endif %}
 
-    {% capture tagsList %}{{ tagsList }}<a href="{{ tag.url }}">{{ tag.slug }}</a>{% endcapture %}
+    {% capture tagsList %}{{ tagsList }}<a href="{{ site.baseurl }}{{ tag.url }}">{{ tag.slug }}</a>{% endcapture %}
   {% endif %}
 {% endfor %}
 
