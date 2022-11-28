@@ -6,6 +6,9 @@ set -o nounset
 set -o errtrace
 shopt -s inherit_errexit
 
+# Assume that the configfile name doesn't have chars that require special quoting (spaces are ok).
+#
+c_jekyll_configfile=$(readlink -f "$(dirname "$0")/../_config.yml")
 c_help="Usage: $(basename "$0") [<filename>]
 
 Updates the :last_modified_at, and prepends the file path to the TOC paths.
@@ -87,7 +90,9 @@ function add_timestamp {
 }
 
 function update_toc {
-  declare -x escaped_title
+  declare -x escaped_title baseurl
+
+  baseurl=$(ruby -ryaml -e 'print YAML.load_file("'"$c_jekyll_configfile"'").fetch("baseurl")')
   escaped_title=$(echo -n "$v_post_filename" | perl -ne 'print /\/[\d-]+(.+)\.md$/')
 
   # Useful when testing, as one may create an unexpected title.
@@ -99,7 +104,7 @@ function update_toc {
 
   # See check_table_has_no_processed_links().
   #
-  perl -i -pe 's|^ *- \[.+\]\(\K(.+)|/$ENV{escaped_title}$1|' "$v_post_filename"
+  perl -i -pe 's|^ *- \[.+\]\(\K(.+)|$ENV{baseurl}/$ENV{escaped_title}$1|' "$v_post_filename"
 }
 
 ################################################################################
