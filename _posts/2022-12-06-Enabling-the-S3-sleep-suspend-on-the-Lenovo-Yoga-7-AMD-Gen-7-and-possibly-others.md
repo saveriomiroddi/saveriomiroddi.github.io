@@ -245,9 +245,12 @@ I don't exclude that with appropriate changes, some of the methods above can wor
 
 ## References
 
+The following are some references on the topic. **Watch out**: the Microsoft and Anadtech references are biased and/or deceptive, and they're present only for completeness.
+
 - ACPI DSDT, on the [OSDev wiki](https://wiki.osdev.org/DSDT)
 - Sleeping states, on [Microsoft Learn](https://learn.microsoft.com/en-us/windows-hardware/drivers/kernel/system-sleeping-states)
-- S0ix sleeping state, on [Anandtech](https://www.anandtech.com/show/6355/intels-haswell-architecture/3) (but doesn't consider the downsides)
+- Modern Standby vs S3 on [Microsoft Learn](https://learn.microsoft.com/en-us/windows-hardware/design/device-experiences/modern-standby-vs-s3)
+- S0ix sleeping state, on [Anandtech](https://www.anandtech.com/show/6355/intels-haswell-architecture/3)
 - [Another article](/Enabling-the-S3-sleep-suspend-on-the-Lenovo-Yoga-7-AMD-Gen-7-and-possibly-others-https://valinet.ro/2020/12/08/Enable-S3-sleep-on-Lenovo-Yoga-Slim-7-14are05.html), with context, on enabling an S3 support on a different Yoga model, on Windows
 - [Kernel DSDT patch](/Enabling-the-S3-sleep-suspend-on-the-Lenovo-Yoga-7-AMD-Gen-7-and-possibly-others-http://kernel.dk/acpi.patch) frequently mentioned
 
