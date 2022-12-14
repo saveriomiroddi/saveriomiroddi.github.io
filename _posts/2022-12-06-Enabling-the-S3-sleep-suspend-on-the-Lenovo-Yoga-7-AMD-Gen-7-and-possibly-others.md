@@ -253,6 +253,10 @@ I don't exclude that with appropriate changes, some of the methods above can wor
 
 ## Conclusion
 
-Removal of the S3 sleep state is a terrible state of affairs, not for the technical problem itself, rather, because it shows how a misguided and obtuse decision from Microsoft had a profound effect on the whole computing ecosystem.
+Removal of the S3 sleep state is a terrible state of affairs.
 
-Some hardware producers do make available the S3 option in the firmware; vote with your wallet (and some noise 😁).
+It's not clear who drove this change; according to some, Microsoft initiated it, in its push for the "Connected/Modern Standby"; according to others, the producers did.
+
+I believe that Microsoft has been the drive, in particular, considering that they've been pushing the Modern Standby through a campaign of deceptive half-truths. Don't forget that Microsoft ships on the near-totality of the (non-Mac) desktop PCs, and they have an enormous leverage on producers.
+
+The future is uncertain. Some hardware producers do make available the S3 option in the firmware; vote with your wallet (and some noise 😁).
