@@ -11,7 +11,6 @@ In this article I'll describe how to restore support for it on the Lenovo Yoga 7
 
 Content:
 
-- [Help!](/Enabling-the-S3-sleep-suspend-on-the-Lenovo-Yoga-7-AMD-Gen-7-and-possibly-others#help)
 - [Procedure](/Enabling-the-S3-sleep-suspend-on-the-Lenovo-Yoga-7-AMD-Gen-7-and-possibly-others#procedure)
   - [Preliminary operations](/Enabling-the-S3-sleep-suspend-on-the-Lenovo-Yoga-7-AMD-Gen-7-and-possibly-others#preliminary-operations)
   - [Dumping and patching the DSDT](/Enabling-the-S3-sleep-suspend-on-the-Lenovo-Yoga-7-AMD-Gen-7-and-possibly-others#dumping-and-patching-the-dsdt)
@@ -25,10 +24,6 @@ Content:
   - [Methods not working](/Enabling-the-S3-sleep-suspend-on-the-Lenovo-Yoga-7-AMD-Gen-7-and-possibly-others#methods-not-working)
 - [References](/Enabling-the-S3-sleep-suspend-on-the-Lenovo-Yoga-7-AMD-Gen-7-and-possibly-others#references)
 - [Conclusion](/Enabling-the-S3-sleep-suspend-on-the-Lenovo-Yoga-7-AMD-Gen-7-and-possibly-others#conclusion)
-
-## Help!
-
-I have verified only two of the four possible methods. It'd be helpful for readers of this article, if somebody verified the other two methods (I've lost enough hair on the investigation...); for confirmations, write a comment at the bottom of the article, or alternatively, find my contact on my [Github profile](https://github.com/64kramsystem) (requires login).
 
 ## Procedure
 
