@@ -2,7 +2,7 @@
 layout: post
 title: "Enabling the S3 sleep state (suspend-to-RAM) on the Lenovo Yoga 7 AMD Gen 7 (and possibly, others)"
 tags: [hardware,linux,sysadmin,ubuntu]
-last_modified_at: 2022-12-06 18:23:27
+last_modified_at: 2022-12-14 23:10:17
 ---
 
 The lack of support for the Suspend-to-RAM functionality (ie. S3 sleep state), and its replacement with the disastrous Connected Standby (ie. S0ix sleep state) is a well-known plague on modern laptops.
@@ -16,10 +16,10 @@ Content:
   - [Preliminary operations](/Enabling-the-S3-sleep-suspend-on-the-Lenovo-Yoga-7-AMD-Gen-7-and-possibly-others#preliminary-operations)
   - [Dumping and patching the DSDT](/Enabling-the-S3-sleep-suspend-on-the-Lenovo-Yoga-7-AMD-Gen-7-and-possibly-others#dumping-and-patching-the-dsdt)
   - [Overriding the DSDT](/Enabling-the-S3-sleep-suspend-on-the-Lenovo-Yoga-7-AMD-Gen-7-and-possibly-others#overriding-the-dsdt)
+    - [Initrd hook](/Enabling-the-S3-sleep-suspend-on-the-Lenovo-Yoga-7-AMD-Gen-7-and-possibly-others#initrd-hook)
     - [Patching the kernel](/Enabling-the-S3-sleep-suspend-on-the-Lenovo-Yoga-7-AMD-Gen-7-and-possibly-others#patching-the-kernel)
     - [Prepending an initrd image](/Enabling-the-S3-sleep-suspend-on-the-Lenovo-Yoga-7-AMD-Gen-7-and-possibly-others#prepending-an-initrd-image)
-    - [Initrd hook (unverified)](/Enabling-the-S3-sleep-suspend-on-the-Lenovo-Yoga-7-AMD-Gen-7-and-possibly-others#initrd-hook-unverified)
-    - [GRUB setting (unverified)](/Enabling-the-S3-sleep-suspend-on-the-Lenovo-Yoga-7-AMD-Gen-7-and-possibly-others#grub-setting-unverified)
+    - [GRUB setting (not universal)](/Enabling-the-S3-sleep-suspend-on-the-Lenovo-Yoga-7-AMD-Gen-7-and-possibly-others#grub-setting-not-universal)
   - [Result](/Enabling-the-S3-sleep-suspend-on-the-Lenovo-Yoga-7-AMD-Gen-7-and-possibly-others#result)
   - [Debugging](/Enabling-the-S3-sleep-suspend-on-the-Lenovo-Yoga-7-AMD-Gen-7-and-possibly-others#debugging)
   - [Methods not working](/Enabling-the-S3-sleep-suspend-on-the-Lenovo-Yoga-7-AMD-Gen-7-and-possibly-others#methods-not-working)
@@ -117,6 +117,40 @@ This will generate multiple files - different override methods require different
 
 There are different approaches to overriding the DSDT. I'll describe what I've tested, and the pros/cons.
 
+#### Initrd hook
+
+The best method is to add an initrd hook; it's clean, and it doesn't require any maintenance:
+
+```sh
+# Create the initrd image, including the patched DSDT in the approprite directory, which corresponds
+# to the `firmware/acpi` subdirectory of the `/sys` virtual filesystem.
+#
+mkdir -p kernel/firmware/acpi
+cp patched-dsdt.aml kernel/firmware/acpi
+find kernel | cpio -H newc --create | sudo tee /boot/acpi_override > /dev/null
+
+# Now create the hook. Note that this is not the canonical style for hooks; it's been reduced to the
+# simplest form, for clarity.
+#
+sudo tee /etc/initramfs-tools/hooks/acpi_override << 'SH'
+#!/bin/sh
+
+if [ "$1" = prereqs ]; then
+  echo
+else
+  . /usr/share/initramfs-tools/hook-functions
+  prepend_earlyinitramfs /boot/acpi_override
+fi
+SH
+
+sudo chown root: /etc/initramfs-tools/hooks/acpi_override
+sudo chmod 755 /etc/initramfs-tools/hooks/acpi_override
+
+# Now update the initramfs (for all the kernels).
+#
+update-initramfs -k all -u
+```
+
 #### Patching the kernel
 
 For those who use a patched kernel, it's just a matter of setting the related configuration symbol(s):
@@ -151,13 +185,9 @@ $ cat initrd-patched-dsdt.img initrd.img-"$(uname -r)" | sudo tee /boot/initrd.i
 
 The source, for the generic method, is in the [kernel docs](https://docs.kernel.org/admin-guide/acpi/initrd_table_override.html).
 
-#### Initrd hook (unverified)
+#### GRUB setting (not universal)
 
-A clean and automatic method is to add an initrd hook. This is described [here](https://gist.github.com/javanna/38d019a373085e1ba0c784597bc7ec73?permalink_comment_id=2761814#gistcomment-2761814).
-
-#### GRUB setting (unverified)
-
-Another clean and automatic method is to set the custom initrd image via GRUB, approximately like:
+Another clean and automatic method is to set the custom initrd image via GRUB. Note that this method has been reported to work, but it didn't on my O/S.
 
 ```sh
 $ sudo cp dsdt.aml /boot/patched-dsdt.aml
@@ -177,7 +207,6 @@ elif [ -z "\${config_directory}" -a -f  \$prefix/custom.cfg ]; then
   source \$prefix/custom.cfg
 fi
 EOF
-
 ```
 
 In case a given distro doesn't include `/boot/grub/custom.cfg`, just add the rule file.
