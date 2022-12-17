@@ -121,7 +121,7 @@ The best method is to add an initrd hook; it's clean, and it doesn't require any
 # to the `firmware/acpi` subdirectory of the `/sys` virtual filesystem.
 #
 mkdir -p kernel/firmware/acpi
-cp patched-dsdt.aml kernel/firmware/acpi
+cp dsdt.aml kernel/firmware/acpi
 find kernel | cpio -H newc --create | sudo tee /boot/acpi_override > /dev/null
 
 # Now create the hook. Note that this is not the canonical style for hooks; it's been reduced to the
@@ -143,7 +143,7 @@ sudo chmod 755 /etc/initramfs-tools/hooks/acpi_override
 
 # Now update the initramfs (for all the kernels).
 #
-update-initramfs -k all -u
+sudo update-initramfs -k all -u
 ```
 
 #### Patching the kernel
