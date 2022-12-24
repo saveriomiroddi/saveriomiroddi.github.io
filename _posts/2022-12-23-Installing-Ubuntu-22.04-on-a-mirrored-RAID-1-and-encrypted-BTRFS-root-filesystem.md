@@ -157,10 +157,10 @@ cp -avrT /target "$TEMP_DIR_TARGET"/
 
 umount /target
 
-sgdisk "$DISK1_DEV" -R "$DISK2_DEV"
-sgdisk -G "$DISK2_DEV"
+sgdisk $DISK1_DEV -R $DISK2_DEV
+sgdisk -G $DISK2_DEV
 
-CONTAINER2_NAME=$(basename "$DISK2_DEV")3_crypt
+CONTAINER2_NAME=$(basename $DISK2_DEV)3_crypt
 
 echo -n "$PASSWORD" | cryptsetup luksFormat ${DISK2_DEV}3 -
 echo -n "$PASSWORD" | cryptsetup luksOpen ${DISK2_DEV}3 "$CONTAINER2_NAME" -
@@ -214,7 +214,7 @@ lvs
 
 mkfs.btrfs -f /dev/mapper/vgubuntu--mate-root
 
-mount -o "$BTRFS_OPTS" /dev/mapper/vgubuntu--mate-root /target
+mount -o $BTRFS_OPTS /dev/mapper/vgubuntu--mate-root /target
 
 btrfs device add /dev/mapper/vgubuntu--mate--mirror-root /target
 btrfs balance start --full-balance --verbose -dconvert=raid1 -mconvert=raid1 /target
@@ -232,22 +232,22 @@ btrfs subvolume create /target/@home
 
 umount /target
 
-mount -o subvol=@,"$BTRFS_OPTS" /dev/mapper/vgubuntu--mate-root /target
+mount -o subvol=@,$BTRFS_OPTS /dev/mapper/vgubuntu--mate-root /target
 mkdir /target/home
-mount -o subvol=@home,"$BTRFS_OPTS" /dev/mapper/vgubuntu--mate-root /target/home
+mount -o subvol=@home,$BTRFS_OPTS /dev/mapper/vgubuntu--mate-root /target/home
 
 cp -avrT "$TEMP_DIR_TARGET" /target/
 
-mkfs.btrfs -f /dev/sda2
+mkfs.btrfs -f ${DISK1_DEV}2
 
-mount -o "$BTRFS_OPTS" /dev/sda2 /target/boot
+mount -o $BTRFS_OPTS ${DISK1_DEV}2 /target/boot
 
 btrfs device add /dev/sdb2 /target/boot
 btrfs balance start --full-balance --verbose -dconvert=raid1 -mconvert=raid1 /target/boot
 
 cp -avrT "$TEMP_DIR_BOOT" /target/boot/
 
-mount /dev/sda1 /target/boot/efi
+mount ${DISK1_DEV}1 /target/boot/efi
 
 sed -ie '/vgubuntu--mate-root/ d' /target/etc/fstab
 sed -ie "/^# \/boot / i /dev/mapper/vgubuntu--mate-root /     btrfs defaults,subvol=@,$BTRFS_OPTS     0 1" /target/etc/fstab
@@ -280,9 +280,9 @@ export BTRFS_OPTS=ssd,noatime,commit=120,compress=zstd # same as set in setp #2
 ```sh
 # This script doesn't require interaction.
 
-mount -o subvol=@,"$BTRFS_OPTS" /dev/mapper/vgubuntu--mate-root /target
-mount /dev/sda2 /target/boot
-mount /dev/sda1 /target/boot/efi
+mount -o subvol=@,$BTRFS_OPTS /dev/mapper/vgubuntu--mate-root /target
+mount ${DISK1_DEV}2 /target/boot
+mount ${DISK1_DEV}1 /target/boot/efi
 
 for vdev in dev sys proc; do mount --bind /$vdev /target/$vdev; done
 
