@@ -30,10 +30,15 @@ Content:
 
 The resulting setup is:
 
-- Disk A: EFI, boot, encrypted swap, encrypted BTRFS root and home subvolumes
-- Disk B: encrypted mirror of the filesystem above
+- Disk A: EFI, boot (BTRFS), encrypted swap, encrypted BTRFS root and home subvolumes
+- Disk B: mirrors of the two BTRFS volumes
 
-The EFI and boot partitions are not currently mirrored; the article will be updated in the near future with further improvements (mirroring the boot partition is very simple).
+The EFI is not currently mirrored; the article will be updated in the near future with further improvements.
+
+Note that for simplicity, on Disk B:
+
+- corresponding to the EFI partition, an empty partition is created
+- the Btrfs encrypted volume fills the space corresponding to the swap partition
 
 ## Comparison with ZFS
 
@@ -138,12 +143,17 @@ PASSWORD=foo
 #
 mount | grep target
 
-umount --recursive /target/boot
+umount /target/boot/efi
 
 # -rT: Copy content, including hidden files; not necessary, but better safe than sorry.
 #
-TEMP_DIR=$(mktemp --directory)
-cp -avrT /target "$TEMP_DIR"/
+TEMP_DIR_BOOT=$(mktemp --directory)
+cp -avrT /target/boot "$TEMP_DIR_BOOT"/
+
+umount /target/boot
+
+TEMP_DIR_TARGET=$(mktemp --directory)
+cp -avrT /target "$TEMP_DIR_TARGET"/
 
 umount /target
 
@@ -226,14 +236,24 @@ mount -o subvol=@,"$BTRFS_OPTS" /dev/mapper/vgubuntu--mate-root /target
 mkdir /target/home
 mount -o subvol=@home,"$BTRFS_OPTS" /dev/mapper/vgubuntu--mate-root /target/home
 
-cp -avrT "$TEMP_DIR" /target/
+cp -avrT "$TEMP_DIR_TARGET" /target/
 
-mount /dev/sda2 /target/boot
+mkfs.btrfs -f /dev/sda2
+
+mount -o "$BTRFS_OPTS" /dev/sda2 /target/boot
+
+btrfs device add /dev/sdb2 /target/boot
+btrfs balance start --full-balance --verbose -dconvert=raid1 -mconvert=raid1 /target/boot
+
+cp -avrT "$TEMP_DIR_BOOT" /target/boot/
+
 mount /dev/sda1 /target/boot/efi
 
 sed -ie '/vgubuntu--mate-root/ d' /target/etc/fstab
 sed -ie "/^# \/boot / i /dev/mapper/vgubuntu--mate-root /     btrfs defaults,subvol=@,$BTRFS_OPTS     0 1" /target/etc/fstab
 sed -ie "/^# \/boot / i /dev/mapper/vgubuntu--mate-root /home btrfs defaults,subvol=@home,$BTRFS_OPTS 0 2" /target/etc/fstab
+BOOT_PART_UUID=$(blkid -s UUID -o value ${DISK1_DEV}2)
+sed -ie "/^UUID.* \/boot / c UUID=$BOOT_PART_UUID /boot btrfs defaults,$BTRFS_OPTS 0 2" /target/etc/fstab
 
 # Can't set keyscript=decrypt_keyctl now; see the second part of the procedure.
 #
