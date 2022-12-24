@@ -55,7 +55,7 @@ For users who don't have such requirements, I strongly advise against using BTRF
 
 ## Overview of the possible approaches
 
-Any procedure that alters the standard course of installation is inherently unstable; the installer (Subiquity) is very rough around the edges, and it doesn't help power users in any way, but most importantly, it doesn't have a specification. For this reason, even a well-written procedure that works at a point in time, may fail after some time for very minor, but still breaking, details.
+Any procedure that alters the standard course of installation is inherently unstable; the installer (Ubiquity) is very rough around the edges, and it doesn't help power users in any way, but most importantly, it doesn't have a specification. For this reason, even a well-written procedure that works at a point in time, may fail after some time for very minor, but still breaking, details.
 
 A few strategies can be used; some of them have only a few moving parts, and they will likely be stable for a very long time.
 
@@ -272,7 +272,7 @@ Now return to the installer, and complete the installation. At the end, click on
 
 ```sh
 export DISK1_DEV=/dev/sda
-export BTRFS_OPTS=ssd,noatime,commit=120,compress=zstd # same as set in setp #2
+export BTRFS_OPTS=noatime,compress=zstd:1,space_cache=v2,discard=async # same as set in step #2
 ```
 
 - then run the following script:
