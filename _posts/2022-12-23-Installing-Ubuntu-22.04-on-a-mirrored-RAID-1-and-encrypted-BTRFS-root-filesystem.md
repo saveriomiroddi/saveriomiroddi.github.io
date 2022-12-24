@@ -303,7 +303,6 @@ update-grub
 
 exit
 
-for vdev in proc sys dev; do umount --recursive --force --lazy /target/$vdev; done
 umount --recursive /target
 ```
 
