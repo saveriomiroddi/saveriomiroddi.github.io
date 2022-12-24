@@ -120,6 +120,7 @@ It's not possible to make Ubiquity install the bootloader; with the btrfs change
 # The options chosen below are indicative, and depend on the kernel version.
 #
 export BTRFS_OPTS=noatime,compress=zstd:1,space_cache=v2,discard=async
+DISK1_DEV=/dev/sda
 DISK2_DEV=/dev/sdb
 PASSWORD=foo
 ```
@@ -146,16 +147,13 @@ cp -avrT /target "$TEMP_DIR"/
 
 umount /target
 
-parted $DISK2_DEV << CONF
-  mklabel gpt
-  mkpart primary 1MiB 100%
-  quit
-CONF
+sgdisk "$DISK1_DEV" -R "$DISK2_DEV"
+sgdisk -G "$DISK2_DEV"
 
-CONTAINER2_NAME=$(basename "$DISK2_DEV")1_crypt
+CONTAINER2_NAME=$(basename "$DISK2_DEV")3_crypt
 
-echo -n "$PASSWORD" | cryptsetup luksFormat ${DISK2_DEV}1 -
-echo -n "$PASSWORD" | cryptsetup luksOpen ${DISK2_DEV}1 "$CONTAINER2_NAME" -
+echo -n "$PASSWORD" | cryptsetup luksFormat ${DISK2_DEV}3 -
+echo -n "$PASSWORD" | cryptsetup luksOpen ${DISK2_DEV}3 "$CONTAINER2_NAME" -
 
 # LUKS containers are not strictly necessary, however, it makes the second device structure consistent
 # with the first; additionally, password caching is on volume groups.
@@ -163,7 +161,7 @@ echo -n "$PASSWORD" | cryptsetup luksOpen ${DISK2_DEV}1 "$CONTAINER2_NAME" -
 # Display the containers; sample output:
 #
 #   sda3_crypt	(253, 0)
-#   sdb1_crypt	(253, 3)
+#   sdb3_crypt	(253, 3)
 #
 dmsetup ls --target=crypt
 
@@ -175,7 +173,7 @@ pvcreate /dev/mapper/"$CONTAINER2_NAME"
 #
 #    PV                     VG            Fmt  Attr PSize  PFree
 #    /dev/mapper/sda3_crypt vgubuntu-mate lvm2 a--  61.81g     0
-#    /dev/mapper/sdb1_crypt               lvm2 ---  63.98g 63.98g
+#    /dev/mapper/sdb3_crypt               lvm2 ---  63.98g 63.98g
 pvs
 
 # Create a volume group.
@@ -239,7 +237,7 @@ sed -ie "/^# \/boot / i /dev/mapper/vgubuntu--mate-root /home btrfs defaults,sub
 
 # Can't set keyscript=decrypt_keyctl now; see the second part of the procedure.
 #
-LUKS_DISK2_PART_UUID=$(blkid -s UUID -o value ${DISK2_DEV}1)
+LUKS_DISK2_PART_UUID=$(blkid -s UUID -o value ${DISK2_DEV}3)
 echo "$CONTAINER2_NAME UUID=$LUKS_DISK2_PART_UUID none luks,discard" >> /target/etc/crypttab
 ```
 
