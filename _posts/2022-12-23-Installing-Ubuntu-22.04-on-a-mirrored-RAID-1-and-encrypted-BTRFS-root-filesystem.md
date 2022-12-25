@@ -2,7 +2,7 @@
 layout: post
 title: "Installing Ubuntu (22.04) on a mirrored (RAID-1) and encrypted BTRFS root filesystem"
 tags: [filesystems,linux,shell_scripting,storage,sysadmin,ubuntu]
-last_modified_at: 2022-12-23 17:46:33
+last_modified_at: 2022-12-25 01:32:03
 ---
 
 Ubuntu (and derivatives) have been providing for some time a built-in way to setup last-generation systems (BTRFS, ZFS), however, the installer provides very limited (essentially, none) configuration.
@@ -127,7 +127,7 @@ It's not possible to make Ubiquity install the bootloader; with the btrfs change
 export BTRFS_OPTS=noatime,compress=zstd:1,space_cache=v2,discard=async
 DISK1_DEV=/dev/sda
 DISK2_DEV=/dev/sdb
-PASSWORD=foo
+PASSWORD=foo # same as the one entered during Ubiquity's setup
 ```
 
 - then run the following script:
