@@ -2,7 +2,7 @@
 layout: post
 title: "Installing Ubuntu (22.04) on a mirrored (RAID-1) and encrypted BTRFS root filesystem"
 tags: [filesystems,linux,shell_scripting,storage,sysadmin,ubuntu]
-last_modified_at: 2022-12-23 17:46:33
+last_modified_at: 2022-12-25 01:32:03
 ---
 
 Ubuntu (and derivatives) have been providing for some time a built-in way to setup last-generation systems (BTRFS, ZFS), however, the installer provides very limited (essentially, none) configuration.
@@ -30,10 +30,15 @@ Content:
 
 The resulting setup is:
 
-- Disk A: EFI, boot, encrypted swap, encrypted BTRFS root and home subvolumes
-- Disk B: encrypted mirror of the filesystem above
+- Disk A: EFI, boot (BTRFS), encrypted swap, encrypted BTRFS root and home subvolumes
+- Disk B: mirrors of the two BTRFS volumes
 
-The EFI and boot partitions are not currently mirrored; the article will be updated in the near future with further improvements (mirroring the boot partition is very simple).
+The EFI is not currently mirrored; the article will be updated in the near future with further improvements.
+
+Note that for simplicity, on Disk B:
+
+- corresponding to the EFI partition, an empty partition is created
+- the Btrfs encrypted volume fills the space corresponding to the swap partition
 
 ## Comparison with ZFS
 
@@ -50,7 +55,7 @@ For users who don't have such requirements, I strongly advise against using BTRF
 
 ## Overview of the possible approaches
 
-Any procedure that alters the standard course of installation is inherently unstable; the installer (Subiquity) is very rough around the edges, and it doesn't help power users in any way, but most importantly, it doesn't have a specification. For this reason, even a well-written procedure that works at a point in time, may fail after some time for very minor, but still breaking, details.
+Any procedure that alters the standard course of installation is inherently unstable; the installer (Ubiquity) is very rough around the edges, and it doesn't help power users in any way, but most importantly, it doesn't have a specification. For this reason, even a well-written procedure that works at a point in time, may fail after some time for very minor, but still breaking, details.
 
 A few strategies can be used; some of them have only a few moving parts, and they will likely be stable for a very long time.
 
@@ -120,8 +125,9 @@ It's not possible to make Ubiquity install the bootloader; with the btrfs change
 # The options chosen below are indicative, and depend on the kernel version.
 #
 export BTRFS_OPTS=noatime,compress=zstd:1,space_cache=v2,discard=async
+DISK1_DEV=/dev/sda
 DISK2_DEV=/dev/sdb
-PASSWORD=foo
+PASSWORD=foo # same as the one entered during Ubiquity's setup
 ```
 
 - then run the following script:
@@ -137,25 +143,27 @@ PASSWORD=foo
 #
 mount | grep target
 
-umount --recursive /target/boot
+umount /target/boot/efi
 
 # -rT: Copy content, including hidden files; not necessary, but better safe than sorry.
 #
-TEMP_DIR=$(mktemp --directory)
-cp -avrT /target "$TEMP_DIR"/
+TEMP_DIR_BOOT=$(mktemp --directory)
+cp -avrT /target/boot "$TEMP_DIR_BOOT"/
+
+umount /target/boot
+
+TEMP_DIR_TARGET=$(mktemp --directory)
+cp -avrT /target "$TEMP_DIR_TARGET"/
 
 umount /target
 
-parted $DISK2_DEV << CONF
-  mklabel gpt
-  mkpart primary 1MiB 100%
-  quit
-CONF
+sgdisk $DISK1_DEV -R $DISK2_DEV
+sgdisk -G $DISK2_DEV
 
-CONTAINER2_NAME=$(basename "$DISK2_DEV")1_crypt
+CONTAINER2_NAME=$(basename $DISK2_DEV)3_crypt
 
-echo -n "$PASSWORD" | cryptsetup luksFormat ${DISK2_DEV}1 -
-echo -n "$PASSWORD" | cryptsetup luksOpen ${DISK2_DEV}1 "$CONTAINER2_NAME" -
+echo -n "$PASSWORD" | cryptsetup luksFormat ${DISK2_DEV}3 -
+echo -n "$PASSWORD" | cryptsetup luksOpen ${DISK2_DEV}3 "$CONTAINER2_NAME" -
 
 # LUKS containers are not strictly necessary, however, it makes the second device structure consistent
 # with the first; additionally, password caching is on volume groups.
@@ -163,7 +171,7 @@ echo -n "$PASSWORD" | cryptsetup luksOpen ${DISK2_DEV}1 "$CONTAINER2_NAME" -
 # Display the containers; sample output:
 #
 #   sda3_crypt	(253, 0)
-#   sdb1_crypt	(253, 3)
+#   sdb3_crypt	(253, 3)
 #
 dmsetup ls --target=crypt
 
@@ -175,7 +183,7 @@ pvcreate /dev/mapper/"$CONTAINER2_NAME"
 #
 #    PV                     VG            Fmt  Attr PSize  PFree
 #    /dev/mapper/sda3_crypt vgubuntu-mate lvm2 a--  61.81g     0
-#    /dev/mapper/sdb1_crypt               lvm2 ---  63.98g 63.98g
+#    /dev/mapper/sdb3_crypt               lvm2 ---  63.98g 63.98g
 pvs
 
 # Create a volume group.
@@ -206,7 +214,7 @@ lvs
 
 mkfs.btrfs -f /dev/mapper/vgubuntu--mate-root
 
-mount -o "$BTRFS_OPTS" /dev/mapper/vgubuntu--mate-root /target
+mount -o $BTRFS_OPTS /dev/mapper/vgubuntu--mate-root /target
 
 btrfs device add /dev/mapper/vgubuntu--mate--mirror-root /target
 btrfs balance start --full-balance --verbose -dconvert=raid1 -mconvert=raid1 /target
@@ -224,22 +232,32 @@ btrfs subvolume create /target/@home
 
 umount /target
 
-mount -o subvol=@,"$BTRFS_OPTS" /dev/mapper/vgubuntu--mate-root /target
+mount -o subvol=@,$BTRFS_OPTS /dev/mapper/vgubuntu--mate-root /target
 mkdir /target/home
-mount -o subvol=@home,"$BTRFS_OPTS" /dev/mapper/vgubuntu--mate-root /target/home
+mount -o subvol=@home,$BTRFS_OPTS /dev/mapper/vgubuntu--mate-root /target/home
 
-cp -avrT "$TEMP_DIR" /target/
+cp -avrT "$TEMP_DIR_TARGET" /target/
 
-mount /dev/sda2 /target/boot
-mount /dev/sda1 /target/boot/efi
+mkfs.btrfs -f ${DISK1_DEV}2
+
+mount -o $BTRFS_OPTS ${DISK1_DEV}2 /target/boot
+
+btrfs device add /dev/sdb2 /target/boot
+btrfs balance start --full-balance --verbose -dconvert=raid1 -mconvert=raid1 /target/boot
+
+cp -avrT "$TEMP_DIR_BOOT" /target/boot/
+
+mount ${DISK1_DEV}1 /target/boot/efi
 
 sed -ie '/vgubuntu--mate-root/ d' /target/etc/fstab
 sed -ie "/^# \/boot / i /dev/mapper/vgubuntu--mate-root /     btrfs defaults,subvol=@,$BTRFS_OPTS     0 1" /target/etc/fstab
 sed -ie "/^# \/boot / i /dev/mapper/vgubuntu--mate-root /home btrfs defaults,subvol=@home,$BTRFS_OPTS 0 2" /target/etc/fstab
+BOOT_PART_UUID=$(blkid -s UUID -o value ${DISK1_DEV}2)
+sed -ie "/^UUID.* \/boot / c UUID=$BOOT_PART_UUID /boot btrfs defaults,$BTRFS_OPTS 0 2" /target/etc/fstab
 
 # Can't set keyscript=decrypt_keyctl now; see the second part of the procedure.
 #
-LUKS_DISK2_PART_UUID=$(blkid -s UUID -o value ${DISK2_DEV}1)
+LUKS_DISK2_PART_UUID=$(blkid -s UUID -o value ${DISK2_DEV}3)
 echo "$CONTAINER2_NAME UUID=$LUKS_DISK2_PART_UUID none luks,discard" >> /target/etc/crypttab
 ```
 
@@ -254,7 +272,7 @@ Now return to the installer, and complete the installation. At the end, click on
 
 ```sh
 export DISK1_DEV=/dev/sda
-export BTRFS_OPTS=ssd,noatime,commit=120,compress=zstd # same as set in setp #2
+export BTRFS_OPTS=noatime,compress=zstd:1,space_cache=v2,discard=async # same as set in step #2
 ```
 
 - then run the following script:
@@ -262,9 +280,9 @@ export BTRFS_OPTS=ssd,noatime,commit=120,compress=zstd # same as set in setp #2
 ```sh
 # This script doesn't require interaction.
 
-mount -o subvol=@,"$BTRFS_OPTS" /dev/mapper/vgubuntu--mate-root /target
-mount /dev/sda2 /target/boot
-mount /dev/sda1 /target/boot/efi
+mount -o subvol=@,$BTRFS_OPTS /dev/mapper/vgubuntu--mate-root /target
+mount ${DISK1_DEV}2 /target/boot
+mount ${DISK1_DEV}1 /target/boot/efi
 
 for vdev in dev sys proc; do mount --bind /$vdev /target/$vdev; done
 
@@ -285,7 +303,6 @@ update-grub
 
 exit
 
-for vdev in proc sys dev; do umount --recursive --force --lazy /target/$vdev; done
 umount --recursive /target
 ```
 
