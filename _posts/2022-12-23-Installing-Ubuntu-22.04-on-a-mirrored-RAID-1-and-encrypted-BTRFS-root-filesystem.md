@@ -1,13 +1,13 @@
 ---
 layout: post
-title: "Installing Ubuntu (22.04) on a mirrored (RAID-1) and encrypted BTRFS root filesystem"
+title: "Installing Ubuntu (22.04) on a mirrored (RAID-1) and encrypted btrfs root filesystem"
 tags: [filesystems,linux,shell_scripting,storage,sysadmin,ubuntu]
-last_modified_at: 2022-12-27 00:10:55
+last_modified_at: 2022-12-27 00:26:00
 ---
 
-Ubuntu (and derivatives) have been providing for some time a built-in way to setup last-generation systems (BTRFS, ZFS), however, the installer provides very limited (essentially, none) configuration.
+Ubuntu (and derivatives) have been providing for some time a built-in way to setup last-generation systems (btrfs, ZFS), however, the installer provides very limited (essentially, none) configuration.
 
-In this article I'll explain how to setup a mirrored and encrypted BTRFS root filesystem.
+In this article I'll explain how to setup a mirrored and encrypted btrfs root filesystem.
 
 Content:
 
@@ -21,7 +21,7 @@ Content:
   - [4. Setup the disks post-installation, via filesystem copy](/Installing-Ubuntu-22.04-on-a-mirrored-RAID-1-and-encrypted-BTRFS-root-filesystem#4-setup-the-disks-post-installation-via-filesystem-copy)
 - [Procedure](/Installing-Ubuntu-22.04-on-a-mirrored-RAID-1-and-encrypted-BTRFS-root-filesystem#procedure)
   - [1. Let Ubiquity setup the disk](/Installing-Ubuntu-22.04-on-a-mirrored-RAID-1-and-encrypted-BTRFS-root-filesystem#1-let-ubiquity-setup-the-disk)
-  - [2. Convert to the BTRFS filesystem](/Installing-Ubuntu-22.04-on-a-mirrored-RAID-1-and-encrypted-BTRFS-root-filesystem#2-convert-to-the-btrfs-filesystem)
+  - [2. Convert to the btrfs filesystem](/Installing-Ubuntu-22.04-on-a-mirrored-RAID-1-and-encrypted-BTRFS-root-filesystem#2-convert-to-the-btrfs-filesystem)
   - [3. Complete the installation](/Installing-Ubuntu-22.04-on-a-mirrored-RAID-1-and-encrypted-BTRFS-root-filesystem#3-complete-the-installation)
   - [4. Setup the bootloader and password caching](/Installing-Ubuntu-22.04-on-a-mirrored-RAID-1-and-encrypted-BTRFS-root-filesystem#4-setup-the-bootloader-and-password-caching)
   - [5. Completed!](/Installing-Ubuntu-22.04-on-a-mirrored-RAID-1-and-encrypted-BTRFS-root-filesystem#5-completed)
@@ -31,10 +31,10 @@ Content:
 
 The resulting setup is:
 
-- Disk A: EFI, boot (BTRFS), encrypted swap, encrypted BTRFS root and home subvolumes
-- Disk B: Clone of EFI, mirrors of the two BTRFS volumes
+- Disk A: EFI, boot (btrfs), encrypted swap, encrypted btrfs root and home subvolumes
+- Disk B: Clone of EFI, mirrors of the two btrfs volumes
 
-Note that for simplicity, the Btrfs encrypted volume on disk B, fills the space corresponding to the swap partition.
+Note that for simplicity, the btrfs encrypted volume on disk B, fills the space corresponding to the swap partition.
 
 ### Cloned EFI partition
 
@@ -48,14 +48,14 @@ Since on a stable system, there won't be changes to the EFI partition (kernel up
 
 I've maintained a [ZFS installer](https://github.com/64kramsystem/zfs-installer) for a few years; I've ultimately archived it because, a ZFS setup comparable to the one proposed in this guide, is trivial to configure (just add a new device to the mirror after installation!).
 
-Why choosing BTRFS over ZFS, then? In my opinion, there's no reason; ZFS is (again, in my opinion) superior in any aspect.
+Why choosing btrfs over ZFS, then? In my opinion, there's no reason; ZFS is (again, in my opinion) superior in any aspect.
 
-There are few exceptions where BTRFS is preferable:
+There are few exceptions where btrfs is preferable:
 
 1. when using very recent kernel versions (ZFS may not support them);
 2. when hibernation is required (ZFS's support is not clear).
 
-For users who don't have such requirements, I strongly advise against using BTRFS.
+For users who don't have such requirements, I advise against using btrfs.
 
 ## Overview of the possible approaches
 
@@ -120,7 +120,7 @@ We assume the installation of Ubuntu 22.04 Jammy, on two disks, `sda` and `sdb`.
 
 It's not possible to make Ubiquity install the bootloader; with the btrfs changes, it crashes, without any meaningful message in the log. It's a bit odd, because installing and updating grub from a chrooted target, succeeds.
 
-### 2. Convert to the BTRFS filesystem
+### 2. Convert to the btrfs filesystem
 
 - open a terminal, and switch to the root user
 - set the following env variables accordingly:
@@ -331,6 +331,6 @@ The procedure has been completed. Reboot and enjoy!
 
 ## Conclusion
 
-Ubiquity is a very limited and ultimately frustrating software. Fortunately, the operating system as a whole, has good support for BTRFS, so there is a range of options, which includes very stable, and conceptually simple (enough), solutions.
+Ubiquity is a very limited and ultimately frustrating software. Fortunately, the operating system as a whole, has good support for btrfs, so there is a range of options, which includes very stable, and conceptually simple (enough), solutions.
 
 Happy mirroring 😁
