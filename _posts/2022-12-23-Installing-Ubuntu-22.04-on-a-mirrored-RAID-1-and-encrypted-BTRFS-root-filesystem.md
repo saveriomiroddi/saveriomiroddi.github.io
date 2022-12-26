@@ -294,10 +294,9 @@ mount -o subvol=@,$BTRFS_OPTS "$ROOT_LV_DEV" /target
 mount ${DISK1_DEV}2 /target/boot
 mount ${DISK1_DEV}1 /target/boot/efi
 
-for vdev in dev sys proc; do mount --bind /$vdev /target/$vdev; done
+for vdev in dev sys proc run; do mount --bind /$vdev /target/$vdev; done
 
 chroot /target
-echo 'nameserver 8.8.8.8' >> /etc/resolv.conf
 
 # Cache the password, so that it's not asked twice for the two volume groups.
 #
