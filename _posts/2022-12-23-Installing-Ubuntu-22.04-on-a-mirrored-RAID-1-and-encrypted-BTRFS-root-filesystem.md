@@ -2,7 +2,7 @@
 layout: post
 title: "Installing Ubuntu (22.04) on a mirrored (RAID-1) and encrypted BTRFS root filesystem"
 tags: [filesystems,linux,shell_scripting,storage,sysadmin,ubuntu]
-last_modified_at: 2022-12-25 01:32:03
+last_modified_at: 2022-12-27 00:10:55
 ---
 
 Ubuntu (and derivatives) have been providing for some time a built-in way to setup last-generation systems (BTRFS, ZFS), however, the installer provides very limited (essentially, none) configuration.
@@ -12,6 +12,7 @@ In this article I'll explain how to setup a mirrored and encrypted BTRFS root fi
 Content:
 
 - [Current outcome](/Installing-Ubuntu-22.04-on-a-mirrored-RAID-1-and-encrypted-BTRFS-root-filesystem#current-outcome)
+  - [Cloned EFI partition](/Installing-Ubuntu-22.04-on-a-mirrored-RAID-1-and-encrypted-BTRFS-root-filesystem#cloned-efi-partition)
 - [Comparison with ZFS](/Installing-Ubuntu-22.04-on-a-mirrored-RAID-1-and-encrypted-BTRFS-root-filesystem#comparison-with-zfs)
 - [Overview of the possible approaches](/Installing-Ubuntu-22.04-on-a-mirrored-RAID-1-and-encrypted-BTRFS-root-filesystem#overview-of-the-possible-approaches)
   - [1. Setup the disks pre-installation](/Installing-Ubuntu-22.04-on-a-mirrored-RAID-1-and-encrypted-BTRFS-root-filesystem#1-setup-the-disks-pre-installation)
@@ -31,14 +32,17 @@ Content:
 The resulting setup is:
 
 - Disk A: EFI, boot (BTRFS), encrypted swap, encrypted BTRFS root and home subvolumes
-- Disk B: mirrors of the two BTRFS volumes
+- Disk B: Clone of EFI, mirrors of the two BTRFS volumes
 
-The EFI is not currently mirrored; the article will be updated in the near future with further improvements.
+Note that for simplicity, the Btrfs encrypted volume on disk B, fills the space corresponding to the swap partition.
 
-Note that for simplicity, on Disk B:
+### Cloned EFI partition
 
-- corresponding to the EFI partition, an empty partition is created
-- the Btrfs encrypted volume fills the space corresponding to the swap partition
+The EFI partition on the disk B is valid, and can be used if anything happens to disk A, however, its content is not automatically synced if there are changes to the disks partitioning.
+
+A typical way to perform automatic syncing is via an `apt` hook, however, the sync will be performed on each package setup, which may be excessive.
+
+Since on a stable system, there won't be changes to the EFI partition (kernel updates reflect on the boot partition, not the EFI one), it's not strictly necessary to implement syncing - the decision is up to the user.
 
 ## Comparison with ZFS
 
@@ -127,13 +131,16 @@ It's not possible to make Ubiquity install the bootloader; with the btrfs change
 export BTRFS_OPTS=noatime,compress=zstd:1,space_cache=v2,discard=async
 DISK1_DEV=/dev/sda
 DISK2_DEV=/dev/sdb
+MIRROR_LV_NAME=vgubuntu-mate-mirror # arbitrary, but leave 'mirror' in the name, so it's recognized
 PASSWORD=foo # same as the one entered during Ubiquity's setup
+ROOT_LV_DEV=$(find /dev/mapper -name '*-root')
 ```
 
 - then run the following script:
 
 ```sh
 # This script doesn't require interaction; it displays some useful information during execution.
+# Note that the cloned EFI partition is setup at the end of the second step.
 
 # Sample output:
 #
@@ -188,7 +195,7 @@ pvs
 
 # Create a volume group.
 #
-vgcreate vgubuntu-mate-mirror /dev/mapper/"$CONTAINER2_NAME"
+vgcreate "$MIRROR_LV_NAME" /dev/mapper/"$CONTAINER2_NAME"
 
 # Display the volume groups; sample output:
 #
@@ -201,7 +208,7 @@ vgs
 # Create a logical volume (in the volume group).
 # [n]ame; [l] size in extents
 #
-lvcreate -l 100%FREE -n root vgubuntu-mate-mirror
+lvcreate -l 100%FREE -n root "$MIRROR_LV_NAME"
 
 # List the logical volumes; sample output:
 #
@@ -212,11 +219,12 @@ lvcreate -l 100%FREE -n root vgubuntu-mate-mirror
 #
 lvs
 
-mkfs.btrfs -f /dev/mapper/vgubuntu--mate-root
+mkfs.btrfs -f "$ROOT_LV_DEV"
 
-mount -o $BTRFS_OPTS /dev/mapper/vgubuntu--mate-root /target
+mount -o $BTRFS_OPTS "$ROOT_LV_DEV" /target
 
-btrfs device add /dev/mapper/vgubuntu--mate--mirror-root /target
+MIRROR_LV_DEV=$(find /dev/mapper -name '*mirror*-root')
+btrfs device add "$MIRROR_LV_DEV" /target
 btrfs balance start --full-balance --verbose -dconvert=raid1 -mconvert=raid1 /target
 
 # Sample output:
@@ -232,9 +240,9 @@ btrfs subvolume create /target/@home
 
 umount /target
 
-mount -o subvol=@,$BTRFS_OPTS /dev/mapper/vgubuntu--mate-root /target
+mount -o subvol=@,$BTRFS_OPTS "$ROOT_LV_DEV" /target
 mkdir /target/home
-mount -o subvol=@home,$BTRFS_OPTS /dev/mapper/vgubuntu--mate-root /target/home
+mount -o subvol=@home,$BTRFS_OPTS "$ROOT_LV_DEV" /target/home
 
 cp -avrT "$TEMP_DIR_TARGET" /target/
 
@@ -250,8 +258,8 @@ cp -avrT "$TEMP_DIR_BOOT" /target/boot/
 mount ${DISK1_DEV}1 /target/boot/efi
 
 sed -ie '/vgubuntu--mate-root/ d' /target/etc/fstab
-sed -ie "/^# \/boot / i /dev/mapper/vgubuntu--mate-root /     btrfs defaults,subvol=@,$BTRFS_OPTS     0 1" /target/etc/fstab
-sed -ie "/^# \/boot / i /dev/mapper/vgubuntu--mate-root /home btrfs defaults,subvol=@home,$BTRFS_OPTS 0 2" /target/etc/fstab
+sed -ie "/^# \/boot / i "$ROOT_LV_DEV" /     btrfs defaults,subvol=@,$BTRFS_OPTS     0 1" /target/etc/fstab
+sed -ie "/^# \/boot / i "$ROOT_LV_DEV" /home btrfs defaults,subvol=@home,$BTRFS_OPTS 0 2" /target/etc/fstab
 BOOT_PART_UUID=$(blkid -s UUID -o value ${DISK1_DEV}2)
 sed -ie "/^UUID.* \/boot / c UUID=$BOOT_PART_UUID /boot btrfs defaults,$BTRFS_OPTS 0 2" /target/etc/fstab
 
@@ -272,7 +280,9 @@ Now return to the installer, and complete the installation. At the end, click on
 
 ```sh
 export DISK1_DEV=/dev/sda
+export DISK2_DEV=/dev/sdb
 export BTRFS_OPTS=noatime,compress=zstd:1,space_cache=v2,discard=async # same as set in step #2
+ROOT_LV_DEV=$(find /dev/mapper -name '*-root' -not -name '*mirror*')
 ```
 
 - then run the following script:
@@ -280,7 +290,7 @@ export BTRFS_OPTS=noatime,compress=zstd:1,space_cache=v2,discard=async # same as
 ```sh
 # This script doesn't require interaction.
 
-mount -o subvol=@,$BTRFS_OPTS /dev/mapper/vgubuntu--mate-root /target
+mount -o subvol=@,$BTRFS_OPTS "$ROOT_LV_DEV" /target
 mount ${DISK1_DEV}2 /target/boot
 mount ${DISK1_DEV}1 /target/boot/efi
 
@@ -302,6 +312,15 @@ grub-install ${DISK1_DEV}
 update-grub
 
 exit
+
+# Setup the cloned EFI partition, and sync it.
+#
+mkfs.fat -F 32 -n EFI ${DISK2_DEV}1
+mkdir /target/boot/efi2
+mount ${DISK2_DEV}1 /target/boot/efi2
+EFI2_PART_UUID=$(blkid -s UUID -o value ${DISK2_DEV}1)
+echo "UUID=$EFI2_PART_UUID  /boot/efi2       vfat    umask=0077      0       1" >> /target/etc/fstab
+rsync --archive --delete --verbose /target/boot/efi/ /target/boot/efi2
 
 umount --recursive /target
 ```
