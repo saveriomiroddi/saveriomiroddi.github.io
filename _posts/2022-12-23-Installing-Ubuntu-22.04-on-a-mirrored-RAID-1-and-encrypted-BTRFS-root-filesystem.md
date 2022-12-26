@@ -127,6 +127,7 @@ It's not possible to make Ubiquity install the bootloader; with the btrfs change
 export BTRFS_OPTS=noatime,compress=zstd:1,space_cache=v2,discard=async
 DISK1_DEV=/dev/sda
 DISK2_DEV=/dev/sdb
+MIRROR_LV_NAME=vgubuntu-mate-mirror # arbitrary, but leave 'mirror' in the name, so it's recognized
 PASSWORD=foo # same as the one entered during Ubiquity's setup
 ROOT_LV_DEV=$(find /dev/mapper -name '*-root')
 ```
@@ -189,7 +190,7 @@ pvs
 
 # Create a volume group.
 #
-vgcreate vgubuntu-mate-mirror /dev/mapper/"$CONTAINER2_NAME"
+vgcreate "$MIRROR_LV_NAME" /dev/mapper/"$CONTAINER2_NAME"
 
 # Display the volume groups; sample output:
 #
@@ -202,7 +203,7 @@ vgs
 # Create a logical volume (in the volume group).
 # [n]ame; [l] size in extents
 #
-lvcreate -l 100%FREE -n root vgubuntu-mate-mirror
+lvcreate -l 100%FREE -n root "$MIRROR_LV_NAME"
 
 # List the logical volumes; sample output:
 #
@@ -217,7 +218,8 @@ mkfs.btrfs -f "$ROOT_LV_DEV"
 
 mount -o $BTRFS_OPTS "$ROOT_LV_DEV" /target
 
-btrfs device add /dev/mapper/vgubuntu--mate--mirror-root /target
+MIRROR_LV_DEV=$(find /dev/mapper -name '*mirror*-root')
+btrfs device add "$MIRROR_LV_DEV" /target
 btrfs balance start --full-balance --verbose -dconvert=raid1 -mconvert=raid1 /target
 
 # Sample output:
