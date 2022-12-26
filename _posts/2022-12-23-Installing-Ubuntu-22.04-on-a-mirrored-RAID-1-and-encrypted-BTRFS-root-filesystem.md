@@ -128,6 +128,7 @@ export BTRFS_OPTS=noatime,compress=zstd:1,space_cache=v2,discard=async
 DISK1_DEV=/dev/sda
 DISK2_DEV=/dev/sdb
 PASSWORD=foo # same as the one entered during Ubiquity's setup
+ROOT_LV_DEV=$(find /dev/mapper -name '*-root')
 ```
 
 - then run the following script:
@@ -212,9 +213,9 @@ lvcreate -l 100%FREE -n root vgubuntu-mate-mirror
 #
 lvs
 
-mkfs.btrfs -f /dev/mapper/vgubuntu--mate-root
+mkfs.btrfs -f "$ROOT_LV_DEV"
 
-mount -o $BTRFS_OPTS /dev/mapper/vgubuntu--mate-root /target
+mount -o $BTRFS_OPTS "$ROOT_LV_DEV" /target
 
 btrfs device add /dev/mapper/vgubuntu--mate--mirror-root /target
 btrfs balance start --full-balance --verbose -dconvert=raid1 -mconvert=raid1 /target
@@ -232,9 +233,9 @@ btrfs subvolume create /target/@home
 
 umount /target
 
-mount -o subvol=@,$BTRFS_OPTS /dev/mapper/vgubuntu--mate-root /target
+mount -o subvol=@,$BTRFS_OPTS "$ROOT_LV_DEV" /target
 mkdir /target/home
-mount -o subvol=@home,$BTRFS_OPTS /dev/mapper/vgubuntu--mate-root /target/home
+mount -o subvol=@home,$BTRFS_OPTS "$ROOT_LV_DEV" /target/home
 
 cp -avrT "$TEMP_DIR_TARGET" /target/
 
@@ -250,8 +251,8 @@ cp -avrT "$TEMP_DIR_BOOT" /target/boot/
 mount ${DISK1_DEV}1 /target/boot/efi
 
 sed -ie '/vgubuntu--mate-root/ d' /target/etc/fstab
-sed -ie "/^# \/boot / i /dev/mapper/vgubuntu--mate-root /     btrfs defaults,subvol=@,$BTRFS_OPTS     0 1" /target/etc/fstab
-sed -ie "/^# \/boot / i /dev/mapper/vgubuntu--mate-root /home btrfs defaults,subvol=@home,$BTRFS_OPTS 0 2" /target/etc/fstab
+sed -ie "/^# \/boot / i "$ROOT_LV_DEV" /     btrfs defaults,subvol=@,$BTRFS_OPTS     0 1" /target/etc/fstab
+sed -ie "/^# \/boot / i "$ROOT_LV_DEV" /home btrfs defaults,subvol=@home,$BTRFS_OPTS 0 2" /target/etc/fstab
 BOOT_PART_UUID=$(blkid -s UUID -o value ${DISK1_DEV}2)
 sed -ie "/^UUID.* \/boot / c UUID=$BOOT_PART_UUID /boot btrfs defaults,$BTRFS_OPTS 0 2" /target/etc/fstab
 
@@ -273,6 +274,7 @@ Now return to the installer, and complete the installation. At the end, click on
 ```sh
 export DISK1_DEV=/dev/sda
 export BTRFS_OPTS=noatime,compress=zstd:1,space_cache=v2,discard=async # same as set in step #2
+ROOT_LV_DEV=$(find /dev/mapper -name '*-root' -not -name '*mirror*')
 ```
 
 - then run the following script:
@@ -280,7 +282,7 @@ export BTRFS_OPTS=noatime,compress=zstd:1,space_cache=v2,discard=async # same as
 ```sh
 # This script doesn't require interaction.
 
-mount -o subvol=@,$BTRFS_OPTS /dev/mapper/vgubuntu--mate-root /target
+mount -o subvol=@,$BTRFS_OPTS "$ROOT_LV_DEV" /target
 mount ${DISK1_DEV}2 /target/boot
 mount ${DISK1_DEV}1 /target/boot/efi
 
