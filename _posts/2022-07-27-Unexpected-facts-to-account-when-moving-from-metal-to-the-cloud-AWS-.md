@@ -2,7 +2,7 @@
 layout: post
 title: "Unexpected things users will find when moving from metal to the cloud (AWS)"
 tags: [aws,cloud,sysadmin]
-last_modified_at: 2022-07-31 23:23:45
+last_modified_at: 2023-01-05 11:52:20
 ---
 
 It's a well-known fact that when moving from metal to the cloud, costs will typically increase (hopefully, trading it for reduced maintenance and/or increased system resilience).
@@ -11,7 +11,7 @@ There are some important things that are very hard to assess, before moving to t
 
 We moved, long ago, to AWS, and we had certain surprises; in this article, I'll describe them, so that companies that plan to move to the cloud can make more informed decisions.
 
-This article is updated to Jul/2022, and I will update it if/when I'll found other notable things.
+This article is updated to Jan/2023, and I will update it if/when I'll found other notable things.
 
 Content:
 
@@ -21,6 +21,8 @@ Content:
   - [The bottom line](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#the-bottom-line-1)
 - [Last generation database services may not be necessarily reserved if they're Intel/AMD](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#last-generation-database-services-may-not-be-necessarily-reserved-if-theyre-intelamd)
   - [The bottom line](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#the-bottom-line-2)
+- [Service upgrades have unpredictable downtime](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#service-upgrades-have-unpredictable-downtime)
+  - [The bottom line](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#the-bottom-line-3)
 
 ## Disks (EBS), also for database services, have an I/O budget
 
@@ -74,3 +76,15 @@ This meant that user requiring a reservation in the meantime, either had to swit
 ### The bottom line
 
 It is possible (but not necessarily) that for some periods of time, RDS reservations are only available for ARM instances and older Intel/AMD generations, but not for new Intel/AMD ones.
+
+## Service upgrades have unpredictable downtime
+
+AWS doesn't set any specification of the downtime caused by service upgrades; the documentation is typically fuzzy (reporting a "best effort" approach), and the upgrades have imprecise timespans, without any indication.
+
+For example, even if one has a redundant Elastcache cluster, and an upgrade specifies "up to 30 minutes" per node, there is no indication about when, within the allocated time (say, 30 minutes * 2 node = 1 hour!), the connection will drop, and for how long.
+
+This means that if the application has no measures against sudden connection drops, over the whole application, it will experience unpredictable disruption of service during the upgrade.
+
+### The bottom line
+
+The application must have measures against connection drops from *all* the services, *all over* the application, even for services configured with redundant topologies. If this is not the case, unpredictable disruption of service will be experienced during service upgrades.
