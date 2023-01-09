@@ -52,6 +52,15 @@ function decode_cmdline_options {
   v_article_name=$1
 }
 
+function perform_checks {
+  # This messes with Jekyll, which removes trailing minuses during the post URL generation.
+  #
+  if [[ $v_article_name == *- ]]; then
+    >&2 echo "Trailing minus ('-') is not supported in the article name!"
+    exit 1
+  fi
+}
+
 function prepare_article_bare_name {
   echo -n "$(echo -n "$v_article_name" | perl -pe 's/[^\w.]+/-/gi')"
 }
@@ -117,6 +126,7 @@ function escape_front_matter_value {
 ################################################################################
 
 decode_cmdline_options "$@"
+perform_checks
 article_bare_name=$(prepare_article_bare_name)
 create_git_branch "$article_bare_name"
 article_filename=$(prepare_article_filename "$article_bare_name")
