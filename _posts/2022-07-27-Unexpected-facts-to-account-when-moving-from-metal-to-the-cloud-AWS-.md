@@ -2,7 +2,7 @@
 layout: post
 title: "Unexpected things users will find when moving from metal to the cloud (AWS)"
 tags: [aws,cloud,sysadmin]
-last_modified_at: 2023-01-05 11:52:20
+last_modified_at: 2023-09-13 13:07:30
 ---
 
 It's a well-known fact that when moving from metal to the cloud, costs will typically increase (hopefully, trading it for reduced maintenance and/or increased system resilience).
@@ -11,47 +11,18 @@ There are some important things that are very hard to assess, before moving to t
 
 We moved, long ago, to AWS, and we had certain surprises; in this article, I'll describe them, so that companies that plan to move to the cloud can make more informed decisions.
 
-This article is updated to Jan/2023, and I will update it if/when I'll found other notable things.
+This article is updated to Sep/2023, and I will update it if/when I'll found other notable things.
 
 Content:
 
-- [Disks (EBS), also for database services, have an I/O budget](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#disks-ebs-also-for-database-services-have-an-io-budget)
-  - [The bottom line](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#the-bottom-line)
 - [Storage services can't be stopped](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#storage-services-cant-be-stopped)
-  - [The bottom line](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#the-bottom-line-1)
+  - [The bottom line](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#the-bottom-line)
 - [Last generation database services may not be necessarily reserved if they're Intel/AMD](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#last-generation-database-services-may-not-be-necessarily-reserved-if-theyre-intelamd)
-  - [The bottom line](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#the-bottom-line-2)
+  - [The bottom line](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#the-bottom-line-1)
 - [Service upgrades have unpredictable downtime](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#service-upgrades-have-unpredictable-downtime)
+  - [The bottom line](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#the-bottom-line-2)
+- [(OBSOLETE) Disks (EBS), also for database services, have an I/O budget](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#obsolete-disks-ebs-also-for-database-services-have-an-io-budget)
   - [The bottom line](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#the-bottom-line-3)
-
-## Disks (EBS), also for database services, have an I/O budget
-
-Even when an application doesn't make heavy use of disks, it happens sometimes that a certain event will trigger heavy I/O load, at least for a short time.
-
-In AWS, disks (EBS) have three main properties:
-
-- a max I/O budget
-- a refill I/O rate (I/O automatically refills at a certain rate)
-- a minimum guaranteed I/O
-
-If/when the application does heavy I/O, it risks to drain the I/O budget, therefore reaching the minimum guaranteed I/O. Even if such events are rare, they surely happen on any application, and they must be taken into account, since they can cause insufficient performance or even downtime.
-
-There are two strategies to handle this:
-
-1. make sure that heavy I/O never happens, and/or make the application I/O aware (e.g. by limiting writes), so that the application _never_ crosses a certain I/O threshold (or anyway, not for longer than a certain timeframe);
-2. increase the size of the disks (the refill rate is proportional to the disk size), so that even if the application performs heavy I/O, the budget refill quickly compensates the expenditure.
-
-Both solutions have an expense.
-
-Option (1) is possible, however, making the application handle I/O with certainty is a nontrivial task from a development perspective (that is, development cost), and it's a continuous job (since typically, applications add new features).
-
-Option (2) is easy to apply, but it has a monetary cost; large part of the disks will be left unused, which is undesirable.
-
-AWS has recently (2022) introduced the `gp3` disks, which have a high baseline, therefore, resolving the I/O budget problem. Cunningly though, AWS doesn't offer this disk type for RDS users, which are stuck with this problem, and related cost.
-
-### The bottom line
-
-If an application has I/O peaks (e.g updates dozens of millions of records in the database), even if seldom, the user must very carefully plan I/O costs, when moving to AWS.
 
 ## Storage services can't be stopped
 
@@ -88,3 +59,34 @@ This means that if the application has no measures against sudden connection dro
 ### The bottom line
 
 The application must have measures against connection drops from *all* the services, *all over* the application, even for services configured with redundant topologies. If this is not the case, unpredictable disruption of service will be experienced during service upgrades.
+
+## (OBSOLETE) Disks (EBS), also for database services, have an I/O budget
+
+(This section is now obsolete, as the `gp3` storage type has been made available both for EC2 and RDS instances)
+
+Even when an application doesn't make heavy use of disks, it happens sometimes that a certain event will trigger heavy I/O load, at least for a short time.
+
+In AWS, disks (EBS) have three main properties:
+
+- a max I/O budget
+- a refill I/O rate (I/O automatically refills at a certain rate)
+- a minimum guaranteed I/O
+
+If/when the application does heavy I/O, it risks to drain the I/O budget, therefore reaching the minimum guaranteed I/O. Even if such events are rare, they surely happen on any application, and they must be taken into account, since they can cause insufficient performance or even downtime.
+
+There are two strategies to handle this:
+
+1. make sure that heavy I/O never happens, and/or make the application I/O aware (e.g. by limiting writes), so that the application _never_ crosses a certain I/O threshold (or anyway, not for longer than a certain timeframe);
+2. increase the size of the disks (the refill rate is proportional to the disk size), so that even if the application performs heavy I/O, the budget refill quickly compensates the expenditure.
+
+Both solutions have an expense.
+
+Option (1) is possible, however, making the application handle I/O with certainty is a nontrivial task from a development perspective (that is, development cost), and it's a continuous job (since typically, applications add new features).
+
+Option (2) is easy to apply, but it has a monetary cost; large part of the disks will be left unused, which is undesirable.
+
+AWS has recently (2022) introduced the `gp3` disks, which have a high baseline, therefore, resolving the I/O budget problem. Cunningly though, AWS doesn't offer this disk type for RDS users, which are stuck with this problem, and related cost.
+
+### The bottom line
+
+If an application has I/O peaks (e.g updates dozens of millions of records in the database), even if seldom, the user must very carefully plan I/O costs, when moving to AWS.
