@@ -2,7 +2,7 @@
 layout: post
 title: "Unexpected things users will find when moving from metal to the cloud (AWS)"
 tags: [aws,cloud,sysadmin]
-last_modified_at: 2023-09-13 13:07:30
+last_modified_at: 2023-09-13 13:10:26
 ---
 
 It's a well-known fact that when moving from metal to the cloud, costs will typically increase (hopefully, trading it for reduced maintenance and/or increased system resilience).
@@ -15,14 +15,64 @@ This article is updated to Sep/2023, and I will update it if/when I'll found oth
 
 Content:
 
-- [Storage services can't be stopped](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#storage-services-cant-be-stopped)
+- [Some workflows have unknown side effects, and can be completely obscure even in case of very serious problems](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#some-workflows-have-unknown-side-effects-and-can-be-completely-obscure-even-in-case-of-very-serious-problems)
+  - [An RDS horror story](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#an-rds-horror-story)
   - [The bottom line](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#the-bottom-line)
-- [Last generation database services may not be necessarily reserved if they're Intel/AMD](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#last-generation-database-services-may-not-be-necessarily-reserved-if-theyre-intelamd)
+- [Storage services can't be stopped](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#storage-services-cant-be-stopped)
   - [The bottom line](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#the-bottom-line-1)
-- [Service upgrades have unpredictable downtime](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#service-upgrades-have-unpredictable-downtime)
+- [Last generation database services may not be necessarily reserved if they're Intel/AMD](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#last-generation-database-services-may-not-be-necessarily-reserved-if-theyre-intelamd)
   - [The bottom line](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#the-bottom-line-2)
-- [(OBSOLETE) Disks (EBS), also for database services, have an I/O budget](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#obsolete-disks-ebs-also-for-database-services-have-an-io-budget)
+- [Service upgrades have unpredictable downtime](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#service-upgrades-have-unpredictable-downtime)
   - [The bottom line](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#the-bottom-line-3)
+- [(OBSOLETE) Disks (EBS), also for database services, have an I/O budget](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#obsolete-disks-ebs-also-for-database-services-have-an-io-budget)
+  - [The bottom line](/Unexpected-facts-to-account-when-moving-from-metal-to-the-cloud-AWS-#the-bottom-line-4)
+
+## Some workflows have unknown side effects, and can be completely opaque even in case of very serious problems
+
+In several cases, AWS doesn't disclose the side effects (that is, downtime) of their workflows, declaring that the workflow is "best-effort".
+
+[This](https://web.archive.org/web/20230323222748/https://docs.aws.amazon.com/AmazonRDS/latest/AuroraMySQLReleaseNotes/AuroraMySQL.Updates.117.html) is an example of Aurora MySQL update:
+
+> We support zero-downtime patching, which works on a best-effort basis to preserve client connections through the patching process
+
+Note how the workflow is described "zero-downtime" and "best-effort" at the same time, which is conflictual.
+
+Worse, some workflows can be completely opaque, even in case of very serious problems (see following section)
+
+### An RDS horror story
+
+One of our primary MySQL RDS instances hung, due to problems with fulltext indexes (MySQL's fulltext implementation has very serious problems).
+
+The only options we had were to reboot the server, or to perform a failover; for simplicity, we opted for the former.
+
+However, after 10 minutes or so, the instance was stuck in the `Rebooting` state, with the logs not showing anything useful.
+
+Even after 30 minutes, the server was still stuck with no indication of what was the nature of the problem. We contacted support (we have a business plan), but the first line was not able to do anything, so they told us they would contact the RDS team.
+
+At around the 45 minute mark, we were in serious troubles:
+
+- production was down
+- we had no clue about what was going on
+- we had no control over the instance
+- support was not helping
+
+therefore we decided to perform the failover.
+
+At some point, the instance finally rebooted, however, in order to avoid mistakes (due to id clashing), we decided to stop it, and perform investigations later.
+
+When it came the moment to perform the investigation, the logs weren't showing anything useful, so we asked the AWS support to investigate.
+
+It took *more than two weeks*, and multiple requests, for the AWS support to come with a reply, and ultimately, they replied that there had been a problem with the server restart, but since we stopped the instance, there were no logs to look at.
+
+With the information at hand, it seems that AWS did not disclose what really happened behind the scenes, giving us generic information; it doesn't make sense for a MySQL server to take multiple restarts in order to successfully go online.
+
+Cases like this are terrifying. An RDS instance may hang, bringing production down, and the sysadmin may not have any mean to restore it, nor any information about the problem; the only solution is then to either wait a very long time, hoping that the problem will solve itself, or perform a failover (assuming one has a read replica).
+
+### The bottom line
+
+Some common workflows (e.g. service updates) have unknown side effects (i.e. downtime), so systems need to be engineered to deal with this. This is a very important distinction from owned services: while engineering for failure is certainly required, at least one is under control of the workflows.
+
+In worst case scenario, AWS services like RDS may fail catastrophically, and the sysadmin may be left without any mean to intervene (e.g. if they have no read replicas) and/or information to understand what's the problem.
 
 ## Storage services can't be stopped
 
