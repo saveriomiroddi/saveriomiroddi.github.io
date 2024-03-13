@@ -81,7 +81,9 @@ function prepare_article_filename {
 # Return the tags, sorted, one per line.
 #
 function find_tags {
-  find "$c_tags_path" -type f -printf '%P\n' | sed 's/\.md$//' | sort
+  find "$c_tags_path" -type f -printf '%P\n' \
+    | sed 's/\.md$//' \
+    | sort
 }
 
 function add_article_file {
