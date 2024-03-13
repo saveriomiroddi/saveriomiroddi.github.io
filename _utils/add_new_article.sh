@@ -36,7 +36,7 @@ Creates the branch, and the article file.
 c_posts_path=$(dirname "$0")/../_posts
 c_tags_path=$(dirname "$0")/../_tags
 c_branch_prefix=add_article_
-
+c_tags_readme_prefix=README
 c_editor_program=code
 
 ################################################################################
@@ -83,6 +83,7 @@ function prepare_article_filename {
 function find_tags {
   find "$c_tags_path" -type f -printf '%P\n' \
     | sed 's/\.md$//' \
+    | grep -v "^$c_tags_readme_prefix" \
     | sort
 }
 
