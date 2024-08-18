@@ -2,10 +2,10 @@ source 'https://rubygems.org'
 
 # See https://pages.github.com/versions.
 #
-# Last updated on 26/Feb/2021.
+# Last updated on Aug/2024.
 #
-gem "jekyll",               '3.9.3'
-gem "jekyll-feed",          '0.15.1'
+gem "jekyll",               '3.10.0'
+gem "jekyll-feed",          '0.17.0'
 gem "jekyll-redirect-from", '0.16.0'
 gem "jekyll-seo-tag",       '2.8.0'
 gem "jekyll-sitemap",       '1.4.0'
