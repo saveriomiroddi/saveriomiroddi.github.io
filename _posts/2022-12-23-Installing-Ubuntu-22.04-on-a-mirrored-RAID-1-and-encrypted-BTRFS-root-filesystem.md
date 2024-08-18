@@ -2,7 +2,7 @@
 layout: post
 title: "Installing Ubuntu (22.04) on a mirrored (RAID-1) and encrypted btrfs root filesystem"
 tags: [filesystems,linux,shell_scripting,storage,sysadmin,ubuntu]
-last_modified_at: 2022-12-27 00:26:00
+last_modified_at: 2024-08-18 12:04:58
 ---
 
 Ubuntu (and derivatives) have been providing for some time a built-in way to setup last-generation systems (btrfs, ZFS), however, the installer provides very limited (essentially, none) configuration.
@@ -128,7 +128,7 @@ It's not possible to make Ubiquity install the bootloader; with the btrfs change
 ```sh
 # The options chosen below are indicative, and depend on the kernel version.
 #
-export BTRFS_OPTS=noatime,compress=zstd:1,space_cache=v2,discard=async
+export BTRFS_OPTS=degraded,nodiscard,compress=zstd:1
 DISK1_DEV=/dev/sda
 DISK2_DEV=/dev/sdb
 MIRROR_LV_NAME=vgubuntu-mate-mirror # arbitrary, but leave 'mirror' in the name, so it's recognized
@@ -281,7 +281,7 @@ Now return to the installer, and complete the installation. At the end, click on
 ```sh
 export DISK1_DEV=/dev/sda
 export DISK2_DEV=/dev/sdb
-export BTRFS_OPTS=noatime,compress=zstd:1,space_cache=v2,discard=async # same as set in step #2
+export BTRFS_OPTS=degraded,nodiscard,compress=zstd:1 # same as set in step #2
 ROOT_LV_DEV=$(find /dev/mapper -name '*-root' -not -name '*mirror*')
 ```
 
