@@ -1,6 +1,7 @@
 source 'https://rubygems.org'
 
 # See https://pages.github.com/versions.
+# Could also use the `github-pages` gem, which includes all updated deps.
 #
 # Last updated on Aug/2024.
 #
